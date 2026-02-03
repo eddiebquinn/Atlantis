@@ -6,6 +6,7 @@
     ../../modules/home/git.nix
     ../../modules/home/shell.nix
     ../../modules/home/alacritty.nix
+    ../../modules/home/apps.nix
   ];
 
   home.file.".config/hypr".source = ../../modules/home/configs/hypr;
