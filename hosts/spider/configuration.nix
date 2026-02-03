@@ -4,6 +4,7 @@
     ../../modules/nixos/base.nix
     ../../modules/nixos/networking.nix
     ../../modules/nixos/users.nix
+    ../../modules/nixos/wm/qtile.nix
   ];
 
   # keep spider-specific stuff here for now
@@ -11,16 +12,6 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  services.xserver = {
-    enable = true;
-    autoRepeatDelay = 200;
-    autoRepeatInterval = 35;
-    windowManager.qtile.enable = true;
-  };
-
-  services.displayManager.ly.enable = true;
-  services.libinput.enable = true;
 
   programs.firefox.enable = true;
 
