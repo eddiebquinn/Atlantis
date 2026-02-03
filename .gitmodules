@@ -1,6 +1,0 @@
-[submodule "modules/home/configs/vendor/waybar"]
-	path = modules/home/configs/vendor/waybar
-	url = https://github.com/tonybanters/waybar
-[submodule "modules/home/configs/vendor/hypr"]
-	path = modules/home/configs/vendor/hypr
-	url = https://github.com/tonybanters/hypr
