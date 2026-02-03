@@ -11,6 +11,7 @@
     git
     alacritty
     tree
+    firefox
   ];
 
   fonts.packages = with pkgs; [
