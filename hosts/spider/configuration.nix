@@ -8,6 +8,10 @@
     ../../modules/nixos/wm/hyprland.nix
   ];
 
+  services.xserver = {
+    xkb.layout = "gb";
+  };
+  
   # keep spider-specific stuff here for now
   networking.hostName = "spider";
 
