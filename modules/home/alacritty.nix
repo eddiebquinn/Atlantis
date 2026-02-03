@@ -33,20 +33,27 @@
         save_to_clipboard = true;
       };
 
-      # Disable terminal bell (no flash / beep)
+      # 🔕 Disable terminal bell (no flash / beep)
       bell = {
         animation = "None";
       };
 
-      # Clipboard keybinds
+      # 📋 Clipboard keybinds
       keyboard.bindings = [
         { key = "C"; mods = "Control|Shift"; action = "Copy"; }
         { key = "V"; mods = "Control|Shift"; action = "Paste"; }
       ];
 
-      # Mouse behaviour
+      # 🖱️ Mouse behaviour
       mouse = {
         hide_when_typing = true;
+      };
+
+      # 🧠 Disable IME preedit (removes red bar)
+      env = {
+        GTK_IM_MODULE = "none";
+        QT_IM_MODULE = "none";
+        XMODIFIERS = "";
       };
 
       colors = {
