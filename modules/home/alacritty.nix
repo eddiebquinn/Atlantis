@@ -35,7 +35,8 @@
 
       # 🔕 Disable terminal bell (no flash / beep)
       bell = {
-        animation = "None";
+        animation = "Linear";
+        duration = 0;
       };
 
       # 📋 Clipboard keybinds
@@ -47,13 +48,6 @@
       # 🖱️ Mouse behaviour
       mouse = {
         hide_when_typing = true;
-      };
-
-      # 🧠 Disable IME preedit (removes red bar)
-      env = {
-        GTK_IM_MODULE = "none";
-        QT_IM_MODULE = "none";
-        XMODIFIERS = "";
       };
 
       colors = {
