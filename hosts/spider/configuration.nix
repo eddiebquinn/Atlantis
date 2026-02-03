@@ -5,7 +5,7 @@
     ../../modules/nixos/networking.nix
     ../../modules/nixos/users.nix
     ../../modules/nixos/display-manager.nix
-    ../../modules/nixos/wm/qtile.nix
+    ../../modules/nixos/wm/hyprland.nix
   ];
 
   # keep spider-specific stuff here for now
