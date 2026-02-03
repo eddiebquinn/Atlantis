@@ -49,16 +49,6 @@
         hide_when_typing = true;
       };
 
-      # Clickable URLs
-      hints.enabled = [
-        {
-          regex = "(https?://[^\\s]+)";
-          command = "xdg-open";
-          post_processing = true;
-          mouse.enabled = true;
-        }
-      ];
-
       colors = {
         primary = {
           background = "0x0b0f14";
