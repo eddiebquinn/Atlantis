@@ -8,6 +8,5 @@
     windowManager.qtile.enable = true;
   };
 
-  services.displayManager.ly.enable = true;
   services.libinput.enable = true;
 }

@@ -1,0 +1,61 @@
+@define-color bg        rgba(0, 0, 0, 0.0);
+@define-color fg        #ffffff;
+@define-color border    rgba(255, 255, 255, 0.6);
+@define-color border-hi #ffffff;
+@define-color urgent    rgba(255, 255, 255, 0.25);
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+window#waybar {
+    background-color: @bg;
+    color: @fg;
+}
+
+/* Workspaces */
+#workspaces button {
+    padding: 0 6px;
+    color: @fg;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+}
+
+#workspaces button.active {
+    border-bottom: 2px solid @border-hi;
+}
+
+#workspaces button.urgent {
+    background-color: @urgent;
+}
+
+/* Hover */
+button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Modules */
+#clock,
+#custom-sep,
+#battery,
+#cpu,
+#memory,
+#disk,
+#network,
+#tray {
+    padding: 0 8px;
+    color: @fg;
+    border-bottom: 2px solid @border;
+}
+
+#custom-sep {
+    color: rgba(255, 255, 255, 0.3);
+    border-bottom: none;
+}
+
+/* Network edge case */
+#network.disconnected {
+    background-color: rgba(255, 255, 255, 0.15);
+}
