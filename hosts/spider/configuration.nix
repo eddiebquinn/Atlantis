@@ -2,11 +2,11 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/base.nix
+    ../../modules/nixos/networking.nix
   ];
 
   # keep spider-specific stuff here for now
   networking.hostName = "spider";
-  networking.networkmanager.enable = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
