@@ -4,6 +4,7 @@
     ../../modules/nixos/base.nix
     ../../modules/nixos/networking.nix
     ../../modules/nixos/users.nix
+    ../../modules/nixos/display-manager.nix
     ../../modules/nixos/wm/qtile.nix
   ];
 
