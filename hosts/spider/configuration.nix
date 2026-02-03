@@ -3,6 +3,7 @@
     ./hardware-configuration.nix
     ../../modules/nixos/base.nix
     ../../modules/nixos/networking.nix
+    ../../modules/nixos/users.nix
   ];
 
   # keep spider-specific stuff here for now
@@ -20,11 +21,6 @@
 
   services.displayManager.ly.enable = true;
   services.libinput.enable = true;
-
-  users.users.eddie = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-  };
 
   programs.firefox.enable = true;
 
