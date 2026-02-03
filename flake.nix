@@ -8,17 +8,22 @@
     };
   };
 
-  outputs = {self, nixpkgs, home-manager, ...}: {
+  outputs = { self, nixpkgs, home-manager, ... }:
+  let
+    system = "x86_64-linux";
+  in
+  {
     nixosConfigurations.spider = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
+      inherit system;
       modules = [
-        ./configuration.nix
+        ./hosts/spider/configuration.nix
+
         home-manager.nixosModules.home-manager
         {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users.eddie = import ./home.nix;
+            users.eddie = import ./home/eddie/home.nix;
             backupFileExtension = "backup";
           };
         }
