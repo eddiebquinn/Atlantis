@@ -33,6 +33,32 @@
         save_to_clipboard = true;
       };
 
+      # Disable terminal bell (no flash / beep)
+      bell = {
+        animation = "None";
+      };
+
+      # Clipboard keybinds
+      keyboard.bindings = [
+        { key = "C"; mods = "Control|Shift"; action = "Copy"; }
+        { key = "V"; mods = "Control|Shift"; action = "Paste"; }
+      ];
+
+      # Mouse behaviour
+      mouse = {
+        hide_when_typing = true;
+      };
+
+      # Clickable URLs
+      hints.enabled = [
+        {
+          regex = "(https?://[^\\s]+)";
+          command = "xdg-open";
+          post_processing = true;
+          mouse.enabled = true;
+        }
+      ];
+
       colors = {
         primary = {
           background = "0x0b0f14";
