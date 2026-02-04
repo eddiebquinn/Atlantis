@@ -23,8 +23,12 @@ window#waybar {
     border-bottom: 2px solid transparent;
 }
 
-#workspaces button.active {
+#workspaces button.focused {
     border-bottom: 2px solid @border-hi;
+}
+
+#workspaces button.visible {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 #workspaces button.urgent {
