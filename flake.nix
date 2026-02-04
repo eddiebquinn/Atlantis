@@ -1,5 +1,6 @@
 {
   description = "Atlantis Build";
+
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-25.11";
     home-manager = {
@@ -23,7 +24,38 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users.eddie = import ./home/eddie/home.nix;
+
+            users.eddie = { ... }: {
+              imports = [
+                ./home/eddie/home.nix
+                ./hosts/spider/home.nix
+              ];
+            };
+
+            backupFileExtension = "backup";
+          };
+        }
+      ];
+    };
+
+    nixosConfigurations.blackhand = nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        ./hosts/blackhand/configuration.nix
+
+        home-manager.nixosModules.home-manager
+        {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+
+            users.eddie = { ... }: {
+              imports = [
+                ./home/eddie/home.nix
+                ./hosts/blackhand/home.nix
+              ];
+            };
+
             backupFileExtension = "backup";
           };
         }
