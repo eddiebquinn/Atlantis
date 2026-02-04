@@ -1,57 +1,51 @@
-/* Atlantis-ish: dark, soft, readable */
+/* Absolute minimal black & white */
 
-window {
-  margin: 0px;
-  padding: 10px;
-  border: 2px solid rgba(120, 170, 255, 0.25);
-  border-radius: 14px;
-  background-color: rgba(11, 15, 20, 0.92);
+* {
+  all: unset;
   font-family: "JetBrainsMono Nerd Font";
   font-size: 14px;
 }
 
+window {
+  background-color: rgba(0, 0, 0, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 0px; /* brutalist */
+  padding: 12px;
+}
+
+/* Input box */
 #input {
-  margin: 0px 0px 10px 0px;
-  padding: 10px 12px;
-  border: 1px solid rgba(120, 170, 255, 0.25);
-  border-radius: 10px;
-  background-color: rgba(15, 20, 28, 0.85);
-  color: #cdd6f4;
+  background-color: transparent;
+  color: #ffffff;
+  padding: 8px 4px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-#inner-box {
-  margin: 0px;
-  padding: 0px;
-  background: transparent;
-}
-
-#outer-box {
-  margin: 0px;
-  padding: 0px;
-  background: transparent;
-}
-
-#scroll {
-  margin: 0px;
-  padding: 0px;
-}
-
+/* Entry list */
 #entry {
-  padding: 8px 10px;
-  border-radius: 10px;
-  color: #cdd6f4;
+  padding: 6px 4px;
+  color: #ffffff;
 }
 
 #entry:selected {
-  background-color: rgba(120, 170, 255, 0.18);
-  color: #cdd6f4;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
+/* App name text */
 #text {
-  margin: 0px 6px;
-  color: #cdd6f4;
+  color: #ffffff;
 }
 
+/* Kill icons completely */
 #img {
-  margin-right: 8px;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar gone */
+#scroll {
+  background: transparent;
 }

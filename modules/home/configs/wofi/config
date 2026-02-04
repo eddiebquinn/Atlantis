@@ -1,9 +1,9 @@
 show=drun
-prompt=Search…
-width=520
-height=340
-allow_images=true
-image_size=24
+prompt=
+width=420
+height=360
+allow_images=false
+image_size=0
 insensitive=true
 term=alacritty
 gtk_dark=true
