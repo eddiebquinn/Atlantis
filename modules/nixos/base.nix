@@ -12,11 +12,12 @@
     alacritty
     tree
     firefox
+    codeium
+    obsidian
   ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
-
-  services.openssh.enable = true;
+  
 }

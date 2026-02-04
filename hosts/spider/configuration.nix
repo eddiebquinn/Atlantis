@@ -7,6 +7,7 @@
     ../../modules/nixos/display-manager.nix
     ../../modules/nixos/wm/hyprland.nix
     ../../modules/nixos/syncthing.nix
+    ../../modules/nixos/ssh.nix
   ];
 
   # keep spider-specific stuff here for now
