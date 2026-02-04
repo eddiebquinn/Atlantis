@@ -1,0 +1,9 @@
+show=drun
+prompt=Search…
+width=520
+height=340
+allow_images=true
+image_size=24
+insensitive=true
+term=alacritty
+gtk_dark=true

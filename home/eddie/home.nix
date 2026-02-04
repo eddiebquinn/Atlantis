@@ -12,4 +12,5 @@
   home.file.".config/hypr".source = ../../modules/home/configs/hypr;
   home.file.".config/waybar".source = ../../modules/home/configs/waybar;
   home.file.".config/fastfetch".source = ../../modules/home/configs/fastfetch;
+  home.file.".config/wofi".source = ../../modules/home/configs/wofi;
 }
