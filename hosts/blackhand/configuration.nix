@@ -3,11 +3,15 @@
 {
   imports =
     [
-      /etc/nixos/hardware-configuration.nix
-      ../../modules/system/common.nix
-      ../../modules/system/desktop-plasma.nix
-      ../../modules/system/ssh.nix
-      ../../modules/hardware/nvidia.nix
+      ./hardware-configuration.nix
+    ../../modules/nixos/base.nix
+    ../../modules/nixos/networking.nix
+    ../../modules/nixos/users.nix
+    ../../modules/nixos/display-manager.nix
+    ../../modules/nixos/wm/hyprland.nix
+    ../../modules/nixos/syncthing.nix
+    ../../modules/nixos/audio.nix
+    ../../modules/nixos/hardware/nvidia.nix
     ];
 
   networking.hostName = "blackhand";
