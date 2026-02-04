@@ -10,5 +10,8 @@
     waybar
     hyprpaper
     wofi
+    grim
+    slurp
+    wl-clipboard
   ];
 }
