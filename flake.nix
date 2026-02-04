@@ -23,7 +23,12 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users.eddie = import ./home/eddie/home.nix;
+            users.eddie = import { ... }: {
+              imports = [
+                ./home/eddie/home.nix
+                ./hosts/spider/home.nix
+              ];
+            };
             backupFileExtension = "backup";
           };
         }
@@ -40,7 +45,12 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users.eddie = import ./home/eddie/home.nix;
+            users.eddie = import { ... }: {
+              imports = [
+                ./home/eddie/home.nix
+                ./hosts/blackhand/home.nix
+              ];
+            };
             backupFileExtension = "backup";
           };
         }
