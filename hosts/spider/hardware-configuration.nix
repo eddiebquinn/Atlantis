@@ -8,24 +8,26 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "usb_storage" "sd_mod" "sdhci_pci" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "sdhci_pci" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/628b58a6-9ac6-4a5e-b239-f1bdad1b0da7";
+    { device = "/dev/mapper/luks-c4a60096-b378-4870-8bad-829ab3837852";
       fsType = "ext4";
     };
 
+  boot.initrd.luks.devices."luks-c4a60096-b378-4870-8bad-829ab3837852".device = "/dev/disk/by-uuid/c4a60096-b378-4870-8bad-829ab3837852";
+
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/7A39-FF88";
+    { device = "/dev/disk/by-uuid/ED20-8529";
       fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/608847ba-2b24-44e7-a382-cc28a708fcb7"; }
+    [ { device = "/dev/mapper/luks-8f9b0124-2aae-48d4-ade9-8a5d3ff70dcd"; }
     ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
