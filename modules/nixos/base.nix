@@ -13,7 +13,7 @@
     alacritty
     tree
     firefox
-    codeium
+    vscodium
     obsidian
   ];
 
