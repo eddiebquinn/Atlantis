@@ -32,7 +32,7 @@
 
     initContent = ''
       if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
-        ${pkgs.fastfetch}/bin/fastfetch
+        ${pkgs.fastfetch}/bin/fastfetch && echo " "
       fi
     '';
   };
@@ -43,7 +43,7 @@
     settings = {
       add_newline = false;
 
-      format = "$username@$hostname:$directory$git_branch$git_status$character";
+      format = "[$username@$hostname]:$directory$git_branch$character";
 
       username = {
         show_always = true;
@@ -62,11 +62,8 @@
       };
 
       git_branch = {
-        format = " [$branch]($style)";
-      };
-
-      git_status = {
-        format = "[$all_status$ahead_behind]($style)";
+        format = " ($branch)";
+        style = "white";
       };
 
       character = {
