@@ -37,25 +37,42 @@
     '';
   };
 
-  programs.starship = {
+ programs.starship = {
     enable = true;
     enableZshIntegration = true;
     settings = {
       add_newline = false;
 
-      format = "$directory$git_branch$git_status$character";
+      # Format: user@host:path (git) $
+      format = "$username@$hostname:$directory$git_branch$git_status$character";
 
-      directory = {
-        truncation_length = 3;
-        truncate_to_repo = true;
+      username = {
+        show_always = true;
+        format = "$user";
       };
 
-      git_branch = { format = " [$branch]($style)"; };
-      git_status = { format = " $all_status$ahead_behind"; };
+      hostname = {
+        ssh_only = false;
+        format = "$hostname";
+      };
+
+      directory = {
+        truncation_length = 0; # show full relative path (~ and repo root awareness)
+        truncate_to_repo = false;
+        format = "$path";
+      };
+
+      git_branch = {
+        format = " [$branch]($style)";
+      };
+
+      git_status = {
+        format = "[$all_status$ahead_behind]($style)";
+      };
 
       character = {
-        success_symbol = " ❯";
-        error_symbol = " ❯";
+        success_symbol = " $";
+        error_symbol = " $";
       };
     };
   };
