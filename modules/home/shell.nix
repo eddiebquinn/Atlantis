@@ -36,4 +36,27 @@
       fi
     '';
   };
+
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      add_newline = false;
+
+      format = "$directory$git_branch$git_status$character";
+
+      directory = {
+        truncation_length = 3;
+        truncate_to_repo = true;
+      };
+
+      git_branch = { format = " [$branch]($style)"; };
+      git_status = { format = " $all_status$ahead_behind"; };
+
+      character = {
+        success_symbol = " ❯";
+        error_symbol = " ❯";
+      };
+    };
+  };
 }
