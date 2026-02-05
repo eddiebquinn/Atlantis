@@ -21,4 +21,5 @@
     nerd-fonts.jetbrains-mono
   ];
 
+  programs.zsh.enable = true;
 }

@@ -1,16 +1,84 @@
 { config, pkgs, ... }:
 
 {
-  programs.bash = {
+  home.packages = with pkgs; [
+    fastfetch
+  ];
+
+  programs.zsh = {
     enable = true;
-    shellAliases = {
-      hm-test = "echo HM Running";
+    enableCompletion = true;
+
+    history = {
+      size = 10000;
+      save = 10000;
     };
 
-  initExtra = ''
-    if [[ $- == *i* ]] && [[ -z "$SSH_CONNECTION" ]]; then
-      ${pkgs.fastfetch}/bin/fastfetch
-    fi
-  '';
+    shellAliases = {
+      ll = "ls -lah";
+      gs = "git status";
+    };
+
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    initContent = ''
+      if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
+        ${pkgs.fastfetch}/bin/fastfetch && echo " "
+      fi
+
+      rebuild() {
+        local prev_dir="$PWD"
+        local host="$(hostname -s)"
+
+        {
+          cd /etc/nixos || return 1
+
+          echo "→ Updating Atlantis repo…"
+          sudo git pull --rebase --autostash || return 1
+
+          echo "→ Rebuilding for host: $host"
+          sudo nixos-rebuild switch --flake ".#$host"
+        } always {
+          cd "$prev_dir" || true
+        }
+      }
+    '';
+  };
+
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      add_newline = false;
+
+      format = "$username@$hostname:$directory$git_branch$character";
+
+      username = {
+        show_always = true;
+        format = "\\[$user";
+      };
+
+      hostname = {
+        ssh_only = false;
+        format = "$hostname\\]";
+      };
+
+      directory = {
+        truncation_length = 0;
+        truncate_to_repo = false;
+        format = "$path";
+      };
+
+      git_branch = {
+        format = " \\($branch\\)";
+        style = "white";
+      };
+
+      character = {
+        success_symbol = " \\$";
+        error_symbol   = " \\$";
+      };
+    };
   };
 }
