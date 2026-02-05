@@ -21,13 +21,13 @@
     export SSH_AUTH_SOCK="$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)"
   '';
 
-  programs.ssh = {
-    enable = true;
-    matchBlocks."all" = {
-      host = "*";
-      identityAgent = "${config.home.homeDirectory}/.gnupg/S.gpg-agent.ssh";
-      identityFile = "${config.home.homeDirectory}/.ssh/id_gpg.pub";
-      identitiesOnly = true;
-    };
+programs.ssh = {
+  enable = true;
+
+  matchBlocks."all" = {
+    host = "*";
+    identityAgent = "${config.home.homeDirectory}/.gnupg/S.gpg-agent.ssh";
   };
+};
+
 }
