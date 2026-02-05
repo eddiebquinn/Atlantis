@@ -37,13 +37,12 @@
     '';
   };
 
- programs.starship = {
+  programs.starship = {
     enable = true;
     enableZshIntegration = true;
     settings = {
       add_newline = false;
 
-      # Format: user@host:path (git) $
       format = "$username@$hostname:$directory$git_branch$git_status$character";
 
       username = {
@@ -57,7 +56,7 @@
       };
 
       directory = {
-        truncation_length = 0; # show full relative path (~ and repo root awareness)
+        truncation_length = 0;
         truncate_to_repo = false;
         format = "$path";
       };
@@ -71,8 +70,8 @@
       };
 
       character = {
-        success_symbol = " $";
-        error_symbol = " $";
+        success_symbol = " \\$";
+        error_symbol   = " \\$";
       };
     };
   };
