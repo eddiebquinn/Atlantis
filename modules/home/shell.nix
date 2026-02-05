@@ -1,8 +1,6 @@
 { config, pkgs, ... }:
 
 {
-
-  # Tools that make any shell nicer
   home.packages = with pkgs; [
     fastfetch
   ];
@@ -14,14 +12,9 @@
     };
   };
 
-
-  # Enable zsh (this becomes your interactive shell)
   programs.zsh = {
     enable = true;
-
     enableCompletion = true;
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
 
     history = {
       size = 10000;
@@ -35,10 +28,13 @@
     };
 
     initExtra = ''
-      if [[ $- == *i* ]] && [[ -z "$SSH_CONNECTION" ]]; then
+      if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
         ${pkgs.fastfetch}/bin/fastfetch
       fi
     '';
   };
-  
+
+  # These are separate options/modules in HM
+  programs.zsh.enableAutosuggestions = true;
+  programs.zsh.syntaxHighlighting.enable = true;
 }
