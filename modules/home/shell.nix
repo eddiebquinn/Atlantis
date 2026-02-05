@@ -40,12 +40,12 @@
 
       username = {
         show_always = true;
-        format = "[$user";
+        format = "'['$user";
       };
 
       hostname = {
         ssh_only = false;
-        format = "@$hostname]";
+        format = "@$hostname']'";
       };
 
       directory = {
