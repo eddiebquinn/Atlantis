@@ -15,6 +15,7 @@
     firefox
     vscodium
     obsidian
+    gnupg
   ];
 
   fonts.packages = with pkgs; [
