@@ -1,6 +1,11 @@
 { config, pkgs, ... }:
 
 {
+
+  home.packages = with pkgs; [
+    pavucontrol
+  ];
+
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
