@@ -27,14 +27,13 @@
       gs = "git status";
     };
 
-    initExtra = ''
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    initContent = ''
       if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
         ${pkgs.fastfetch}/bin/fastfetch
       fi
     '';
   };
-
-  # These are separate options/modules in HM
-  programs.zsh.enableAutosuggestions = true;
-  programs.zsh.syntaxHighlighting.enable = true;
 }
