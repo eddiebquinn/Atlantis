@@ -36,16 +36,16 @@
     settings = {
       add_newline = false;
 
-      format = "[[$username@$hostname]]:$directory$git_branch$character";
+      format = "$username@$hostname:$directory$git_branch$character";
 
       username = {
         show_always = true;
-        format = "$user";
+        format = "\\[$user";
       };
 
       hostname = {
         ssh_only = false;
-        format = "$hostname";
+        format = "$hostname\\]";
       };
 
       directory = {
@@ -55,7 +55,7 @@
       };
 
       git_branch = {
-        format = " ($branch)";
+        format = " \\($branch\\)";
         style = "white";
       };
 
