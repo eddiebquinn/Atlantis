@@ -15,7 +15,6 @@
     };
 
     shellAliases = {
-      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos";
       ll = "ls -lah";
       gs = "git status";
     };
@@ -27,6 +26,23 @@
       if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
         ${pkgs.fastfetch}/bin/fastfetch && echo " "
       fi
+
+      rebuild() {
+        local prev_dir="$PWD"
+        local host
+        host="$(hostname -s)"
+
+        # Always return to previous dir, even if something fails
+        trap 'cd "$prev_dir"' EXIT
+
+        cd /etc/nixos || return 1
+
+        echo "→ Updating Atlantis repo…"
+        sudo git pull --rebase --autostash || return 1
+
+        echo "→ Rebuilding for host: $host"
+        sudo nixos-rebuild switch --flake ".#$host"
+      }
     '';
   };
 
