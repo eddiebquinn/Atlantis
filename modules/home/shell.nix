@@ -29,19 +29,19 @@
 
       rebuild() {
         local prev_dir="$PWD"
-        local host
-        host="$(hostname -s)"
+        local host="$(hostname -s)"
 
-        # Always return to previous dir, even if something fails
-        trap 'cd "$prev_dir"' EXIT
+        {
+          cd /etc/nixos || return 1
 
-        cd /etc/nixos || return 1
+          echo "→ Updating Atlantis repo…"
+          sudo git pull --rebase --autostash || return 1
 
-        echo "→ Updating Atlantis repo…"
-        sudo git pull --rebase --autostash || return 1
-
-        echo "→ Rebuilding for host: $host"
-        sudo nixos-rebuild switch --flake ".#$host"
+          echo "→ Rebuilding for host: $host"
+          sudo nixos-rebuild switch --flake ".#$host"
+        } always {
+          cd "$prev_dir" || true
+        }
       }
     '';
   };
