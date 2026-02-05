@@ -21,23 +21,29 @@ window#waybar {
     color: @fg;
     background: transparent;
     border-bottom: 2px solid transparent;
+    opacity: 0.55; /* empty = dim by default */
 }
 
-#workspaces button.focused {
+#workspaces button:not(.empty) {
+    opacity: 0.9;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.30);
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+    opacity: 1.0;
     border-bottom: 2px solid @border-hi;
 }
 
-#workspaces button.occupied {
-    border-bottom: 2px solid rgba(255, 255, 255, 0.35);
-}
-
 #workspaces button.visible {
-    border-bottom: 2px solid rgba(255, 255, 255, 0.18);
+    opacity: 1.0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.55);
 }
 
+/* Urgent */
 #workspaces button.urgent {
     background-color: @urgent;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.85);
 }
 
 /* Hover */
