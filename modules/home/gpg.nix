@@ -12,6 +12,6 @@
     enable = true;
     defaultCacheTtl = 3600;
     maxCacheTtl = 86400;
-    pinentryPackage = pkgs.pinentry-gtk2;
+    pinentry.package = pkgs.pinentry-gtk2;
   };
 }
