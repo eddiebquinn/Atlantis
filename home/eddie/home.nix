@@ -7,6 +7,7 @@
     ../../modules/home/shell.nix
     ../../modules/home/alacritty.nix
     ../../modules/home/apps.nix
+    ../../modules/home/gpg.nix
   ];
 
   home.file.".config/hypr/hyprland.conf".source = ../../modules/home/configs/hypr/hyprland.conf;
