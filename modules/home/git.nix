@@ -9,7 +9,7 @@
       signByDefault = true;
     };
 
-    extraConfig = {
+    settings = {
       gpg.program = "gpg";
       tag.gpgSign = true;
     };
