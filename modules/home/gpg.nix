@@ -26,7 +26,7 @@ programs.ssh = {
 
   matchBlocks."all" = {
     host = "*";
-    identityAgent = "${config.home.homeDirectory}/.gnupg/S.gpg-agent.ssh";
+    identityAgent = "${config.xdg.runtimeDir}/gnupg/S.gpg-agent.ssh";
   };
 };
 
