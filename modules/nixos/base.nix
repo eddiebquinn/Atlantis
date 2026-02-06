@@ -9,13 +9,11 @@
   environment.systemPackages = with pkgs; [
     vim
     wget
-    git
     alacritty
     tree
     firefox
     vscodium
     obsidian
-    gnupg
   ];
 
   fonts.packages = with pkgs; [
