@@ -32,10 +32,10 @@
         local host="$(hostname -s)"
 
         {
-          cd /etc/nixos || return 1
+          cd /home/eddie/.local/share/atlantis || return 1
 
           echo "→ Updating Atlantis repo…"
-          sudo git pull --rebase --autostash || return 1
+          git pull --rebase --autostash || return 1
 
           echo "→ Rebuilding for host: $host"
           sudo nixos-rebuild switch --flake ".#$host"
