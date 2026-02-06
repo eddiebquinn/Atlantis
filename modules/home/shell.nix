@@ -51,7 +51,7 @@
         fi
 
         local repo="$1"
-        local remote="ssh://git@gitlab-ssh.eddiequinn.casa:2424/${repo}.git"
+        local remote="ssh://git@gitlab-ssh.eddiequinn.casa:2424/\${repo}.git"
 
         echo "→ Initialising git repo (master)"
         git init --initial-branch=master || return 1
