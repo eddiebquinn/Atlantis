@@ -26,7 +26,7 @@
 
     matchBlocks."all" = {
       host = "*";
-      identityAgent = "/run/user/${toString config.home.uid}/gnupg/S.gpg-agent.ssh";
+      identityAgent = "/run/user/1000/gnupg/S.gpg-agent.ssh";
       identitiesOnly = true;
     };
   };
