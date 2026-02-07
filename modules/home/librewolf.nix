@@ -4,6 +4,7 @@
   programs.librewolf = {
     enable = true;
     profiles.eddie = {
+      isDefault = true;
       
       # Find these in about:config
       settings = {
@@ -16,31 +17,39 @@
         "privacy.resistFingerprinting" = false;
       };
 
-      search.engines = {
+      search = {
+        force = true;
 
-        "SearXNG" = {
-          urls = [{
-            template = "https://sx.eddiequinn.casa/search";
-            params = [
-              { name = "q"; value = "{searchTerms}"; }
-            ];
-          }];
-          definedAliases = [ "@sx" ];
-        };
+        default = "SearXNG";
+        privateDefault = "SearXNG";
 
-        "Nix Packages" = {
-          urls = [{
-            template = "https://search.nixos.org/packages";
-            params = [
-              { name = "type"; value = "packages"; }
-              { name = "query"; value = "{searchTTerms}"; }
-            ];
-          }];
-          icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = [ "@np" ];
+        # Only show these as search shortcuts / one-offs
+        order = [ "SearXNG" "Nix Packages" ];
+
+        engines = {
+          "SearXNG" = {
+            urls = [{
+              template = "https://sx.eddiequinn.casa/search";
+              params = [
+                { name = "q"; value = "{searchTerms}"; }
+              ];
+            }];
+            definedAliases = [ "@sx" ];
+          };
+
+          "Nix Packages" = {
+            urls = [{
+              template = "https://search.nixos.org/packages";
+              params = [
+                { name = "type"; value = "packages"; }
+                { name = "query"; value = "{searchTerms}"; }
+              ];
+            }];
+            icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+            definedAliases = [ "@np" ];
+          };
         };
       };
-      search.force = true;
 
       # Get full list by running nix flake show "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons"
       extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
