@@ -27,10 +27,7 @@
       nixpkgs.lib.nixosSystem {
         inherit system;
 
-        # Make inputs + hostName available to modules/home-manager
-        extraSpecialArgs = {
-          inherit inputs hostName;
-        };
+        specialArgs = { inherit inputs hostName; };
 
         modules = [
           ./hosts/${hostName}/configuration.nix
@@ -42,6 +39,9 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "backup";
+
+              # For Home-Manager modules
+              extraSpecialArgs = { inherit inputs hostName; };
 
               users.eddie = { ... }: {
                 imports = [
