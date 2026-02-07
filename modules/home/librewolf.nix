@@ -5,6 +5,8 @@
     enable = true;
     profiles.eddie = {
       isDefault = true;
+      
+      # Find these in about:config
       settings = {
         "dom.security.https_only_mode" = true;
         "browser.download.panel.shown" = true;
@@ -17,15 +19,15 @@
 
       search = {
         force = true;
+
         default = "SearXNG";
         privateDefault = "SearXNG";
 
-        # Only show these as the one-off shortcut row
+        # Only show these as search shortcuts / one-offs
         order = [ "SearXNG" "Nix Packages" ];
 
         engines = {
-          searxng = {
-            name = "SearXNG";
+          "SearXNG" = {
             urls = [{
               template = "https://sx.eddiequinn.casa/search";
               params = [
@@ -35,8 +37,7 @@
             definedAliases = [ "@sx" ];
           };
 
-          nix-packages = {
-            name = "Nix Packages";
+          "Nix Packages" = {
             urls = [{
               template = "https://search.nixos.org/packages";
               params = [
@@ -47,26 +48,15 @@
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@np" ];
           };
-
-          # Hide builtin engines (HM treats entries with only metaData as builtin)
-          bing.metaData.hidden = true;
-          google.metaData.hidden = true;
-          duckduckgo.metaData.hidden = true;
-          startpage.metaData.hidden = true;
-          metager.metaData.hidden = true;
-          mojeek.metaData.hidden = true;
-          duckduckgo-lite.metaData.hidden = true;
-          searx-belgium.metaData.hidden = true;
-          wikipedia.metaData.hidden = true;
         };
       };
 
-      extensions.packages = with inputs.firefox-addons.packages.${pkgs.system}; [
+      # Get full list by running nix flake show "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons"
+      extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
         ublock-origin
         keepassxc-browser
         clearurls
       ];
-      
     };
   };
 }
