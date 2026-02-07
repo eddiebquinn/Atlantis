@@ -6,7 +6,7 @@
     ../../modules/home/git.nix
     ../../modules/home/shell.nix
     ../../modules/home/alacritty.nix
-    ../../modules/home/apps.nix
+    ../../modules/home/keepass.nix
     ../../modules/home/gpg.nix
     ../../modules/home/librewolf.nix
   ];
