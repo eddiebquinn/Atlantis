@@ -5,6 +5,7 @@
     enable = true;
     profiles.eddie = {
       
+      # Find these in about:config
       settings = {
         "dom.security.https_only_mode" = true;
         "browser.download.panel.shown" = true;
