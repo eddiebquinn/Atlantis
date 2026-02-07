@@ -11,7 +11,6 @@
     wget
     alacritty
     tree
-    firefox
     vscodium
     obsidian
   ];
