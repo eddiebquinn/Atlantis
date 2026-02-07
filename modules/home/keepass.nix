@@ -4,8 +4,9 @@
   programs.keepassxc = {
     enable = true;
     settings = {
-      BrowserIntegration = {
-        Enabled = true;
+      Browser.Enabled = true;
+      GUI = {
+        ApplicationTheme = "dark";
       };
     };
   };
