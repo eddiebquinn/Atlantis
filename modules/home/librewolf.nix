@@ -17,6 +17,17 @@
       };
 
       search.engines = {
+
+        "SearXNG" = {
+          urls = [{
+            template = "https://sx.eddiequinn.casa/search";
+            params = [
+              { name = "q"; value = "{searchTerms}"; }
+            ];
+          }];
+          definedAliases = [ "@sx" ];
+        };
+
         "Nix Packages" = {
           urls = [{
             template = "https://search.nixos.org/packages";
