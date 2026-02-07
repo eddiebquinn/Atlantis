@@ -3,15 +3,21 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-25.11";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Rycee Firefox add-ons packaged as a flake (minimal alternative to full NUR)
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
+  outputs = { self, nixpkgs, home-manager, firefox-addons, ... }@inputs:
   let
-    # Default; can be overridden per-host if you ever add ARM etc.
     defaultSystem = "x86_64-linux";
 
     mkHost =
@@ -21,15 +27,21 @@
       nixpkgs.lib.nixosSystem {
         inherit system;
 
+        specialArgs = { inherit inputs hostName; };
+
         modules = [
           ./hosts/${hostName}/configuration.nix
 
           home-manager.nixosModules.home-manager
+
           ({ ... }: {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "backup";
+
+              # For Home-Manager modules
+              extraSpecialArgs = { inherit inputs hostName; };
 
               users.eddie = { ... }: {
                 imports = [
