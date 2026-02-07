@@ -11,55 +11,41 @@
 
   outputs = { self, nixpkgs, home-manager, ... }:
   let
-    system = "x86_64-linux";
+    # Default; can be overridden per-host if you ever add ARM etc.
+    defaultSystem = "x86_64-linux";
+
+    mkHost =
+      { hostName
+      , system ? defaultSystem
+      }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+
+        modules = [
+          ./hosts/${hostName}/configuration.nix
+
+          home-manager.nixosModules.home-manager
+          ({ ... }: {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "backup";
+
+              users.eddie = { ... }: {
+                imports = [
+                  ./home/eddie/home.nix
+                  ./hosts/${hostName}/home.nix
+                ];
+              };
+            };
+          })
+        ];
+      };
   in
   {
-    nixosConfigurations.spider = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        ./hosts/spider/configuration.nix
-
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-
-            users.eddie = { ... }: {
-              imports = [
-                ./home/eddie/home.nix
-                ./hosts/spider/home.nix
-              ];
-            };
-
-            backupFileExtension = "backup";
-          };
-        }
-      ];
-    };
-
-    nixosConfigurations.blackhand = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        ./hosts/blackhand/configuration.nix
-
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-
-            users.eddie = { ... }: {
-              imports = [
-                ./home/eddie/home.nix
-                ./hosts/blackhand/home.nix
-              ];
-            };
-
-            backupFileExtension = "backup";
-          };
-        }
-      ];
+    nixosConfigurations = {
+      spider = mkHost { hostName = "spider"; };
+      blackhand = mkHost { hostName = "blackhand"; };
     };
   };
 }
