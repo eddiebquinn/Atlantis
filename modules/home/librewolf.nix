@@ -12,6 +12,7 @@
         "identity.fxaccounts.enabled" = false;
         "signon.rememberSignons" = false;
         "ui.systemUsesDarkTheme" = 1;
+        "privacy.resistFingerprinting" = false;
       };
 
       search.engines = {
