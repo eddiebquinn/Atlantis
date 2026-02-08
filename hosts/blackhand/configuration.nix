@@ -13,6 +13,7 @@
     ../../modules/nixos/audio.nix
     ../../modules/nixos/hardware/nvidia.nix
     ../../modules/nixos/ssh.nix
+    ../../modules/nixos/kube.nix
     ];
 
   networking.hostName = "blackhand";
