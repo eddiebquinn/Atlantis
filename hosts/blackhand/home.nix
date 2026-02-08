@@ -3,7 +3,7 @@
 {
 
   imports = [
-    ../../kube.nix
+    ../../modules/home/kube.nix
   ];
 
   home.file.".config/hypr/hosts.conf".source =
