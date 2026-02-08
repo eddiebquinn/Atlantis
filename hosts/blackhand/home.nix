@@ -1,6 +1,11 @@
 { ... }:
 
 {
+
+  imports = [
+    ../../kube.nix
+  ];
+
   home.file.".config/hypr/hosts.conf".source =
     ../../modules/home/configs/hypr/hosts/blackhand.conf;
 
