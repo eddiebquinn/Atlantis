@@ -3,6 +3,6 @@
   environment.systemPackages = [
     pkgs.kubectl
     pkgs.k3sup
-    pkgs.helm
+    pkgs.kubernetes-helm
   ];
 }
