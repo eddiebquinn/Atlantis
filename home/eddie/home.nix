@@ -9,6 +9,7 @@
     ../../modules/home/keepass.nix
     ../../modules/home/gpg.nix
     ../../modules/home/librewolf.nix
+    ../../modules/home/devlopment.nix
   ];
 
   home.file.".config/hypr/hyprland.conf".source = ../../modules/home/configs/hypr/hyprland.conf;
