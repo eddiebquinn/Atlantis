@@ -82,6 +82,22 @@
         "signon.rememberSignons" = true;
       };
 
+      bookmarks = {
+        force = true;
+        settings = [
+          {
+            name = "Chat";
+            toolbar = true;
+            bookmarks = [
+              {
+                name = "Element";
+                url = "https://app.element.io";
+              }
+            ];
+          }
+        ];
+      };
+
       extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
         ublock-origin
         keepassxc-browser
