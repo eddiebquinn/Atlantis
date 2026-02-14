@@ -93,6 +93,10 @@
                 name = "Element";
                 url = "https://app.element.io";
               }
+              {
+                name = "Whatsapp";
+                url = "https://web.whatsapp.com";
+              }
             ];
           }
         ];
