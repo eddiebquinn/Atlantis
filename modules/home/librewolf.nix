@@ -9,6 +9,7 @@
     #####################
 
     profiles.eddie = {
+      id = 0;
       isDefault = true;
 
       settings = {
@@ -65,6 +66,7 @@
     ###################
 
     profiles.chats = {
+      id = 1;
       isDefault = false;
 
       # Core goal: keep cookies/local storage between launches so chat sessions persist
