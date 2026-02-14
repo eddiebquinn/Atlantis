@@ -97,5 +97,16 @@
         clearurls
       ];
     };
+
+    home.file.".local/share/applications/librewolf-chats.desktop".text = ''
+      [Desktop Entry]
+      Name=LibreWolf (Chats)
+      Exec=librewolf --no-remote -P chats
+      Icon=librewolf
+      Type=Application
+      Categories=Network;Chat;
+      StartupWMClass=LibreWolf
+    '';
+
   };
 }
