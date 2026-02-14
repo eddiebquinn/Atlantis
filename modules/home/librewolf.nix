@@ -3,10 +3,11 @@
 {
   programs.librewolf = {
     enable = true;
+
     profiles.eddie = {
+      id = 0;
       isDefault = true;
-      
-      # Find these in about:config
+
       settings = {
         "dom.security.https_only_mode" = true;
         "browser.download.panel.shown" = true;
@@ -19,11 +20,8 @@
 
       search = {
         force = true;
-
         default = "SearXNG";
         privateDefault = "SearXNG";
-
-        # Only show these as search shortcuts / one-offs
         order = [ "SearXNG" "Nix Packages" ];
 
         engines = {
@@ -50,7 +48,7 @@
           };
         };
       };
-
+      
       # Get full list by running nix flake show "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons"
       extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
         ublock-origin
@@ -58,5 +56,68 @@
         clearurls
       ];
     };
+
+    profiles.chats = {
+      id = 1;
+      isDefault = false;
+
+      settings = {
+        "ui.systemUsesDarkTheme" = 1;
+        "layout.css.prefers-color-scheme.content-override" = 0;
+
+        "privacy.sanitize.sanitizeOnShutdown" = false;
+        "privacy.clearOnShutdown.cookies" = false;
+        "privacy.clearOnShutdown.offlineApps" = false;
+        "privacy.clearOnShutdown.siteSettings" = false;
+        "privacy.clearOnShutdown.cache" = false;
+        "privacy.clearOnShutdown.history" = false;
+        "privacy.clearOnShutdown.downloads" = false;
+        "privacy.clearOnShutdown.formdata" = false;
+        "privacy.clearOnShutdown.sessions" = false;
+
+        "browser.startup.page" = 3;
+        "browser.sessionstore.resume_from_crash" = true;
+
+        "privacy.resistFingerprinting" = false;
+        "signon.rememberSignons" = true;
+      };
+
+      bookmarks = {
+        force = true;
+        settings = [
+          {
+            name = "Chat";
+            toolbar = true;
+            bookmarks = [
+              {
+                name = "Element";
+                url = "https://app.element.io";
+              }
+              {
+                name = "Whatsapp";
+                url = "https://web.whatsapp.com";
+              }
+            ];
+          }
+        ];
+      };
+
+      extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
+        ublock-origin
+        keepassxc-browser
+        clearurls
+        theme-nord-polar-night
+      ];
+    };
   };
+
+  home.file.".local/share/applications/librewolf-chats.desktop".text = ''
+    [Desktop Entry]
+    Name=LibreWolf (Chats)
+    Exec=librewolf --no-remote -P chats
+    Icon=librewolf
+    Type=Application
+    Categories=Network;Chat;
+    StartupWMClass=LibreWolf
+  '';
 }
