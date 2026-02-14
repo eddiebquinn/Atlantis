@@ -54,6 +54,7 @@
         ublock-origin
         keepassxc-browser
         clearurls
+        solarized_fox
       ];
     };
 
@@ -86,6 +87,7 @@
         ublock-origin
         keepassxc-browser
         clearurls
+        theme-nord-polar-night
       ];
     };
   };
