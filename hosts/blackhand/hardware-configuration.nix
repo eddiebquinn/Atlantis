@@ -41,7 +41,7 @@
   boot.initrd.luks.devices."luks-caaf6bd5-d8af-475d-b12a-d2ef153fdf39".device = "/dev/disk/by-uuid/caaf6bd5-d8af-475d-b12a-d2ef153fdf39";
 
   swapDevices =
-    [ { device = "/dev/mapper/luks-63c8a216-3ef1-4cb5-b977-102856cec5ca"; }
+    [ { device = "/swapfile"; size = 16 * 1024; }
     ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
