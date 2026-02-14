@@ -4,10 +4,6 @@
   programs.librewolf = {
     enable = true;
 
-    #####################
-    ## DEFAULT PROFILE ##
-    #####################
-
     profiles.eddie = {
       id = 0;
       isDefault = true;
@@ -52,7 +48,7 @@
           };
         };
       };
-
+      
       # Get full list by running nix flake show "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons"
       extensions.packages = with inputs.firefox-addons.packages."x86_64-linux"; [
         ublock-origin
@@ -61,21 +57,14 @@
       ];
     };
 
-    ###################
-    ## CHATS PROFILE ##
-    ###################
-
     profiles.chats = {
       id = 1;
       isDefault = false;
 
-      # Core goal: keep cookies/local storage between launches so chat sessions persist
       settings = {
-        # Keep your dark theme preference
         "ui.systemUsesDarkTheme" = 1;
         "layout.css.prefers-color-scheme.content-override" = 0;
 
-        # IMPORTANT: do not clear site data on shutdown
         "privacy.sanitize.sanitizeOnShutdown" = false;
         "privacy.clearOnShutdown.cookies" = false;
         "privacy.clearOnShutdown.offlineApps" = false;
@@ -85,8 +74,10 @@
         "privacy.clearOnShutdown.downloads" = false;
         "privacy.clearOnShutdown.formdata" = false;
         "privacy.clearOnShutdown.sessions" = false;
-        "browser.startup.page" = 3; # restore previous session
+
+        "browser.startup.page" = 3;
         "browser.sessionstore.resume_from_crash" = true;
+
         "privacy.resistFingerprinting" = false;
         "signon.rememberSignons" = true;
       };
@@ -97,16 +88,15 @@
         clearurls
       ];
     };
-
-    home.file.".local/share/applications/librewolf-chats.desktop".text = ''
-      [Desktop Entry]
-      Name=LibreWolf (Chats)
-      Exec=librewolf --no-remote -P chats
-      Icon=librewolf
-      Type=Application
-      Categories=Network;Chat;
-      StartupWMClass=LibreWolf
-    '';
-
   };
+
+  home.file.".local/share/applications/librewolf-chats.desktop".text = ''
+    [Desktop Entry]
+    Name=LibreWolf (Chats)
+    Exec=librewolf --no-remote -P chats
+    Icon=librewolf
+    Type=Application
+    Categories=Network;Chat;
+    StartupWMClass=LibreWolf
+  '';
 }
