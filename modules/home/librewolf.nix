@@ -54,7 +54,6 @@
         ublock-origin
         keepassxc-browser
         clearurls
-        solarized_fox
       ];
     };
 
