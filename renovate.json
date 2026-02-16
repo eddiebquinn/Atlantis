@@ -1,8 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "prHourlyLimit": 2,
-  "dependencyDashboard": true
+  "extends": ["config:base"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "extends": ["schedule:weekly"]
+  },
+  "nix": {
+    "enabled": true
+  }
 }
