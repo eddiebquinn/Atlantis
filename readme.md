@@ -1,5 +1,10 @@
-# Atlantis
+# ❄️ Atlantis
 Declarative personal infrastructure built on Nix, Git, and cryptographic identity.
+
+> ⚠️ **Read-Only Mirror**
+> This repository is a public projection for portfolio purposes.
+> The canonical source of truth lives on my self-managed GitLab infrastructure.
+> Running systems are built from that source.
 
 ## Overview
 Atlantis is a long-lived operating environment designed to be:
@@ -44,9 +49,3 @@ Failure should be:
 - Reversible
 - Documented
 - Calm
-
-## Status
-Actively maintained.
-Used daily across multiple machines.
-
-Public mirror — authoritative source hosted on self-managed Git infrastructure.
