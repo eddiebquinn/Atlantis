@@ -36,7 +36,7 @@ in
         cob   = "checkout -b";
         st    = "status";
         lg    = "log --oneline --graph --decorate --all";
-        fi = "!git-fi";
+        fi    = "!git-fi";
       };
     };
   };
