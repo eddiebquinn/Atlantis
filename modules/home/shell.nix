@@ -23,6 +23,7 @@
     syntaxHighlighting.enable = true;
 
     initContent = ''
+      export PATH="$HOME/.local/bin:$PATH"
       if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
         ${pkgs.fastfetch}/bin/fastfetch && echo " "
       fi
