@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  gitFi = ./scripts/git-fi;
+in
 {
   programs.git = {
     enable = true;
@@ -33,31 +36,13 @@
         cob   = "checkout -b";
         st    = "status";
         lg    = "log --oneline --graph --decorate --all";
-
-        fi = ''!f() {
-          if [ -z "$1" ]; then
-            echo "Usage: git fi <namespace/repo>"
-            return 1
-          fi
-
-          repo="$1"
-          branch="master"
-          remote="ssh://git@gitlab-ssh.eddiequinn.casa:2424/$repo.git"
-
-          echo "→ Initialising git repo ($branch)"
-          git init --initial-branch="$branch" || return 1
-
-          echo "→ Adding remote: $remote"
-          git remote add origin "$remote" || return 1
-
-          echo "→ Creating initial commit"
-          git add . || return 1
-          git commit -m "Initial commit" || return 1
-
-          echo "→ Pushing to origin"
-          git push --set-upstream origin "$branch"
-        }; f'';
+        fi = "!git-fi";
       };
     };
+  };
+
+  home.file.".local/bin/git-fi" = {
+    source = gitFi;
+    executable = true;
   };
 }
