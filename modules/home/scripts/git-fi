@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: git fi <namespace/repo>"
+  exit 1
+fi
+
+repo="$1"
+branch="master"
+remote="ssh://git@gitlab-ssh.eddiequinn.casa:2424/${repo}.git"
+
+echo "→ Initialising git repo ($branch)"
+git init --initial-branch="$branch"
+
+echo "→ Adding remote: $remote"
+git remote add origin "$remote"
+
+echo "→ Creating initial commit"
+git add .
+git commit -m "chore: initial commit"
+
+echo "→ Pushing to origin"
+git push --set-upstream origin "$branch"
