@@ -31,9 +31,28 @@
       rebuild() {
         local prev_dir="$PWD"
         local host="$(hostname -s)"
+        local target_branch=""
+
+        case "${1:-}" in
+          --switch|-s)
+            target_branch="${2:-master}"
+            ;;
+          "")
+            ;;
+          *)
+            echo "Usage: rebuild [--switch|-s [branch-name]]"
+            return 1
+            ;;
+        esac
 
         {
           cd /home/eddie/.local/share/atlantis || return 1
+
+          if [[ -n "$target_branch" ]]; then
+            echo "→ Switching Atlantis repo to branch: $target_branch"
+            git fetch origin "$target_branch" || return 1
+            git switch "$target_branch" 2>/dev/null || git switch -c "$target_branch" --track "origin/$target_branch" || return 1
+          fi
 
           echo "→ Updating Atlantis repo…"
           git pull --rebase --autostash || return 1
@@ -43,6 +62,10 @@
         } always {
           cd "$prev_dir" || true
         }
+      }
+
+      revbuild() {
+        rebuild
       }
     '';
   };
