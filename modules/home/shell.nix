@@ -33,9 +33,9 @@
         local host="$(hostname -s)"
         local target_branch=""
 
-        case "${1:-}" in
+        case "''${1:-}" in
           --switch|-s)
-            target_branch="${2:-master}"
+            target_branch="''${2:-master}"
             ;;
           "")
             ;;
