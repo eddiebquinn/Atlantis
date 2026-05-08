@@ -13,5 +13,9 @@
   },
   "lockFileMaintenance": {
     "enabled": true
-  }
+  },
+  "ignoreDeps": [
+    "home-manager",
+    "firefox-addons"
+  ]
 }
