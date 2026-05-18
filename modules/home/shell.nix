@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     fastfetch
+    picocom
   ];
 
   programs.zsh = {
