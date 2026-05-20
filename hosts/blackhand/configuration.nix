@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -22,5 +22,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  virtualisation.docker.enable = true;
+  users.users.eddie.extraGroups = lib.mkAfter [ "docker" ];
+
   system.stateVersion = "25.11";
 }
+
