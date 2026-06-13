@@ -4,6 +4,7 @@
 
   hardware.graphics = {
     enable = true;
+    enable32Bit = true;  # ← add this
   };
 
   programs.steam.enable = true;
