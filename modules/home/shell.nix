@@ -17,6 +17,8 @@
 
     shellAliases = {
       g = "git";
+      hrm = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
+      hermes = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
       ll = "ls -lah";
     };
 
