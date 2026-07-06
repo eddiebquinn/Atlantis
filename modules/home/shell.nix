@@ -31,6 +31,22 @@
         ${pkgs.fastfetch}/bin/fastfetch && echo " "
       fi
 
+      gen-deploy-key() {
+        local name=$1
+        if [[ -z $name ]]; then
+          echo 'Usage: gen-deploy-key <name>'
+          echo 'Generates ~/.ssh/<name>_deploy_key with comment <name> deploy key'
+          return 1
+        fi
+        local keypath="$HOME/.ssh/''${name}_deploy_key"
+        ssh-keygen -t ed25519 -f "$keypath" -C "''${name} deploy key" -N ""
+        echo "#### PRIVATE KEY ####"
+        cat "$keypath"
+        echo ""
+        echo "#### PUBLIC KEY ####"
+        cat "''${keypath}.pub"
+      }
+
       rebuild() {
         local prev_dir="$PWD"
         local host="$(hostname -s)"
