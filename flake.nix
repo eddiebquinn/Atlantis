@@ -56,6 +56,7 @@
   in
   {
     nixosConfigurations = {
+      8ug8ear = mkHost { hostName = "8ug8ear"; };
       spider = mkHost { hostName = "spider"; };
       blackhand = mkHost { hostName = "blackhand"; };
     };
