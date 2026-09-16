@@ -1,8 +1,9 @@
 ## 1. Branch + scaffolding
 
-- [ ] 1.1 Confirm MR !28 is merged and both hosts passed their verification
-  windows + stability soak (change 1, tasks 5.1) before starting
-- [ ] 1.2 Branch `feat/dendritic-layout` off master
+- [ ] 1.1 Confirm `atlantis-26-05-declarative-compositor` has merged and
+  all three hosts passed their verification windows + stability soak
+  (change 1, tasks §6.1) before starting this change.
+- [ ] 1.2 Branch `feat/dendritic-layout` off master.
 
 ## 2. Feature modules
 
