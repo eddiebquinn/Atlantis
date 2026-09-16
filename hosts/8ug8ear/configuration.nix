@@ -10,8 +10,8 @@
     ../../modules/nixos/ssh.nix
   ];
 
-  # keep spider-specific stuff here for now
-  networking.hostName = "spider";
+  # keep 8uh8ear-specific stuff here for now
+  networking.hostName = "8uh8ear";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
