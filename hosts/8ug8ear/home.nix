@@ -8,6 +8,6 @@
     ../../modules/home/configs/waybar/hosts/8ug8ear.jsonc;
 
   services.gpg-agent.sshKeys = [
-    "" # NEED TO GENERATE
+    "6C456670D420AA1C989355232D469E70938B45F0"
   ];
 }
