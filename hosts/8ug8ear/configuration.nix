@@ -10,6 +10,8 @@
     ../../modules/nixos/ssh.nix
   ];
 
+  networking.hostName = "8ug8ear";
+
   # 8ug8ear is a ThinkPad X230 — legacy BIOS / MBR disk (/dev/sda1 is the
   # only partition; no ESP, no bios_grub). systemd-boot needs an ESP and
   # fails install with "efiSysMountPoint = '/boot' is not a mounted partition".
