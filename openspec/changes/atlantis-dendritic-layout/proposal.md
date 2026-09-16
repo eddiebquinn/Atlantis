@@ -24,8 +24,16 @@ its configuration and its assets, hosts importing modules — not files.
 - Thin `home/eddie/home.nix` to an import list only; delete
   `modules/home/configs/` entirely.
 
-Out of scope: Hyprland rice (separate later change), any NixOS-layer
-modules beyond the dead-module deletion.
+Out of scope: Hyprland rice (separate later change — see
+`atlantis-dendritic-rice`), any NixOS-layer modules beyond the dead-module
+deletion.
+
+**Sequencing:** This change is blocked on `atlantis-26-05-declarative-compositor`
+landing and a stability soak. The dendritic pattern this change
+introduces is the same pattern that change establishes for Hyprland
+(monitor / workspace attrs in host files, settings in feature modules).
+Picking that up before the pattern is in production would mean re-doing
+work when the upstream change ships.
 
 ## Capabilities
 

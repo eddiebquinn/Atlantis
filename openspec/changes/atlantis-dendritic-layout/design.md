@@ -1,13 +1,23 @@
 ## Context
 
-MR !28's branch already established the pattern for one surface (hyprland):
-feature module with settings attrs, per-host attrs in `hosts/<host>/home.nix`,
-assets re-homed beside the module. This change extends that pattern to the
-remaining surfaces. The raw files were audited: waybar (jsonc + css, with
+After `atlantis-26-05-declarative-compositor` lands, the remaining
+userland config surfaces (waybar, wofi, fastfetch, hyprpaper) still
+live as raw files in a `modules/home/configs/` grab-bag wired through
+scattered `home.file` indirections in `home/eddie/home.nix`. That
+layout predates the dendritic pattern the rest of the fleet is
+converging on: one feature module owning its configuration and its
+assets, hosts importing modules — not files.
+
+The `atlantis-26-05-declarative-compositor` change already established
+the pattern for one surface (Hyprland): feature module with settings
+attrs, per-host attrs in `hosts/<host>/home.nix`, assets re-homed
+beside the module. This change extends that pattern to the remaining
+surfaces. The raw files were audited: waybar (jsonc + css, with
 per-host jsonc variants), wofi (key-value + css), fastfetch (jsonc),
-hyprpaper (conf + wallpapers dir). The hyprpaper conf is still on pre-0.8
-syntax (`preload =` / `wallpaper =`) which the 26.05-channel hyprpaper no
-longer accepts — the conversion is also a syntax migration, not just a move.
+hyprpaper (conf + wallpapers dir). The hyprpaper conf is still on
+pre-0.8 syntax (`preload =` / `wallpaper =`) which the 26.05-channel
+hyprpaper no longer accepts — the conversion is also a syntax
+migration, not just a move.
 
 ## Goals / Non-Goals
 
@@ -22,7 +32,9 @@ longer accepts — the conversion is also a syntax migration, not just a move.
 - Any visual/theming change (colors, fonts, modules shown) — rice is a
   later change.
 - NixOS-layer reorganization beyond deleting the dead qtile module.
-- Touching MR !28's scope; this change branches after !28 merges.
+- Sequencing only: this change is blocked on
+  `atlantis-26-05-declarative-compositor` landing (see proposal §Out of
+  scope for the coupling rationale).
 
 ## Decisions
 
@@ -38,7 +50,8 @@ longer accepts — the conversion is also a syntax migration, not just a move.
 - **Per-host waybar differences stay in host files.** The base module
   defines common modules/style; hosts override `programs.waybar.settings`
   module lists (blackhand's triple-head bar differs from spider's). This
-  mirrors how hyprland monitors/workspaces were handled in MR !28.
+  mirrors how hyprland monitors/workspaces were handled by the
+  `atlantis-26-05-declarative-compositor` change.
 - **waybar jsonc comments are converted, not preserved.** `programs.waybar`
   settings are typed Nix attrs; the jsonc comments in the current files
   don't survive. Acceptable loss — the attrset is self-describing.
@@ -57,8 +70,9 @@ longer accepts — the conversion is also a syntax migration, not just a move.
 - **hyprpaper syntax migration is the one behavior-relevant change.** If
   the 0.8 block form is subtly wrong, wallpaper silently doesn't apply.
   Task includes explicit wallpaper-applied check on both hosts.
-- **Hyprland `source =` chain already removed in MR !28** — this change
-  inherits that; no additional migration risk from the conf chain.
+- **Hyprland `source =` chain already removed by
+  `atlantis-26-05-declarative-compositor`** — this change inherits that;
+  no additional migration risk from the conf chain.
 - **Import-graph churn.** Renames and re-homing touch every import line;
   eval is the safety net (a broken path fails the build loudly).
 - **qtile deletion is verified-safe but irreversible in git-history terms.**
