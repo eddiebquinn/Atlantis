@@ -1,66 +1,71 @@
 ## Why
 
-Atlantis currently ships the Hyprland session via hand-maintained `.conf`
-files wired through `home.file` indirections, and the compositor module
-lives in `modules/nixos/wm/hyprland.nix` (NixOS layer) instead of the
+Atlantis ships the Hyprland session via hand-maintained `.conf` files
+wired through `home.file` indirections, and the compositor module lives
+in `modules/nixos/wm/hyprland.nix` (NixOS layer) instead of the
 home-manager layer where Hyprland 26.05 expects it. Hyprland 0.55+ moved
-its config from key=value `hyprlang` to a Lua API, which only home-manager
+its config from key=value hyprlang to a Lua API, which only home-manager
 can generate declaratively.
 
-The 26.05 channel pin (`nixos-26.05` + `home-manager release-26.05`) is
-**already on master** via commit `7db7426`. This change does not re-pin
-the channel; it migrates the compositor config to the declarative form
-and extends the conversion to the third host (8ug8ear, added after the
-original spec was written). The work was previously associated with
-MR !28 (`feat/nixpkgs-26.05`), but that MR was closed 2026-09-16 — the
-branch had never been built against current master and a fresh MR will
-ship instead.
+A first attempt at a **1:1 conversion** of the existing 8.4 KB
+`hyprland.conf` + per-host `hosts.conf` chain into HM's Lua-form
+module ran on MR !36 (branch `feat/declarative-compositor`, closed
+2026-09-17). It failed for a structural reason, not a fixable bug:
+home-manager 26.05's Lua emitter produces config shapes that Hyprland
+0.55's Lua parser rejects (typed-attr → `hl.*` shape mismatches for
+`monitor` args, `env` tables, `window_rule` keys, `col.*` colors, bind
+dispatchers, and string quoting). Twelve-plus fix commits each surfaced
+a new mismatch. The old config is also accreted — five years of
+hand-edits whose every knob must be individually translated and then
+debugged against a parser that gives no dry-run feedback.
+
+This change replaces the conversion approach with a **rewrite**:
+start from the upstream `example/hyprland.lua` baseline (a known-good,
+parser-compatible ~355-line config), strip it to a minimal session,
+re-add only the settings this setup actually uses, and grow it
+incrementally on the HM module — verifying each addition boots. The
+user's Hyprland usage is light (single/triple monitor, core binds,
+waybar + hyprpaper autostart); the state to get back to is small.
 
 ## What Changes
 
-- Migrate the Hyprland compositor config from a raw `hyprland.conf` +
-  per-host `hosts.conf` chain to the home-manager
-  `wayland.windowManager.hyprland` module in Lua form
-  (`modules/home/hyprland.nix`, `configType = "lua"`), with per-host
-  monitor and workspace_rule attrs in `hosts/<host>/home.nix`.
-- Delete `modules/nixos/wm/hyprland.nix` (replaced by the home-manager
-  module on the home layer).
-- Delete `modules/home/configs/hypr/hyprland.conf` and the
-  `modules/home/configs/hypr/hosts/{blackhand,spider,8ug8ear}.conf`
-  files (per-host monitor / workspace settings move into host attrs).
-- For all three hosts (`blackhand`, `spider`, `8ug8ear`):
-  - Remove the `modules/nixos/wm/hyprland.nix` import from
-    `hosts/<host>/configuration.nix` (the module is deleted).
-  - Remove the `home.file."~/.config/hypr/hyprland.conf"` and
-    `home.file."~/.config/hypr/hosts.conf"` entries from
-    `hosts/<host>/home.nix`.
-  - Add `wayland.windowManager.hyprland.settings.monitor` and
-    `.workspace_rule` attrs as appropriate per host.
-- Fold the `programs.ssh.matchBlocks` → `programs.ssh.settings.all`
-  migration in `modules/home/gpg.nix` (required by home-manager 26.05).
-- Add `environment.pathsToLink = [ "/share/applications"
-  "/share/xdg-desktop-portal" ];` to each host's `configuration.nix`
-  to satisfy the home-manager `useUserPackages` assertion.
-- Fold `misc.disable_splash_rendering = true` into the declarative
-  module's misc block (from the previous splash-flag fix landed on
-  master via MR !32; folding it in ensures the conversion doesn't
-  silently revert the fix).
-- The `channel-bump` portion of this change is **already on master**
-  and is included here only as a verified precondition; it is not
-  re-pinned by this change.
+- New `modules/home/hyprland.nix` (home-manager module) built from the
+  upstream example baseline — NOT a translation of the legacy conf:
+  - `wayland.windowManager.hyprland` with `configType = "lua"`,
+    `package = null; portalPackage = null` (defer to NixOS layer).
+  - Binds, env, autostart, and section config written as raw
+    `extraConfig` Lua mirroring the upstream example's shapes exactly
+    (`hl.bind(key, hl.dsp.*(...))`, `hl.env("K", "V")`,
+    `hl.monitor({...})`, single `hl.config({...})` block) — HM typed
+    attrs are NOT used for anything beyond enable/configType because
+    HM's emitter shapes are parser-incompatible.
+  - Session support packages via `home.packages`: waybar, hyprpaper,
+    wofi, grim, slurp, wl-clipboard.
+- Slim `modules/nixos/wm/hyprland.nix` to compositor enablement only:
+  `programs.hyprland` (+ `xwayland`) + portal `pathsToLink`. The module
+  survives — the NixOS layer keeps compositor installation and session
+  registration.
+- Delete `modules/home/configs/hypr/hyprland.conf` and
+  `modules/home/configs/hypr/hosts/{blackhand,spider,8ug8ear}.conf`.
+- Per-host monitor/workspace topology via a `banks` list attr +
+  `extraConfig`-level monitor calls in each `hosts/<host>/home.nix`.
+- Fold `programs.ssh.matchBlocks` → `programs.ssh.settings.all` in
+  `modules/home/gpg.nix` (required by HM 26.05).
+- Fold `misc.disable_splash_rendering = true` (from MR !32) into the
+  rewrite's misc block.
+- The 26.05 channel pin is already on master (`7db7426`); not re-pinned.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `system-channel` — the release-channel contract: both hosts build
-  and run against pinned nixpkgs/home-manager 26.05 inputs with
-  `stateVersion` held at `25.11`, verified by on-host checks.
-  Already satisfied on master; this change verifies and maintains it.
 - `compositor-config` — the Hyprland session configuration contract:
-  generated by home-manager as the single source of truth, no
-  hand-edited conf files, per-host monitors and workspace banks via
-  host attrs.
+  generated by home-manager as the single source of truth from the
+  upstream example baseline, no hand-edited conf files, per-host
+  monitors and workspace banks via host attrs, and the generated Lua
+  MUST parse (verified by compositor boot, not eval).
+- `system-channel` — unchanged from prior draft; already satisfied on
+  master, verified and maintained.
 
 ### Modified Capabilities
 
@@ -68,27 +73,30 @@ ship instead.
 
 ## Impact
 
-- `flake.nix`, `flake.lock` — input pins unchanged (already 26.05).
-- `modules/home/hyprland.nix` — new declarative module (224 lines).
-- `modules/nixos/wm/hyprland.nix` — deleted.
-- `modules/home/configs/hypr/hyprland.conf` — deleted.
-- `modules/home/configs/hypr/hosts/{blackhand,spider,8ug8ear}.conf` —
-  deleted.
-- `hosts/{blackhand,spider,8ug8ear}/configuration.nix` — drop the
-  `modules/nixos/wm/hyprland.nix` import; add `environment.pathsToLink`.
-- `hosts/{blackhand,spider,8ug8ear}/home.nix` — replace `home.file`
-  wiring with declarative per-host attrs.
-- `modules/home/gpg.nix` — `matchBlocks` → `settings.all` migration.
-- `home/eddie/home.nix` — import list + remove `home.file` entries.
-- Runtime: all three hosts require build → switch (dbus-broker
-  user-unit reload may exit 4 on the major jump; reboot then re-switch)
-  and a one-time `rm -f ~/.config/hypr/hyprland.conf`.
+- `modules/nixos/wm/hyprland.nix` — slimmed (compositor enable +
+  xwayland + portal pathsToLink only).
+- `modules/home/hyprland.nix` — new, baseline-from-example module.
+- `modules/home/configs/hypr/hyprland.conf` — deleted (recoverable
+  from git history: last on master at `84eb6b0`).
+- `modules/home/configs/hypr/hosts/*.conf` — deleted (same).
+- `hosts/{blackhand,spider,8ug8ear}/home.nix` — per-host attrs replace
+  `home.file` wiring.
+- `modules/home/gpg.nix` — `matchBlocks` → `settings.all`.
+- `home/eddie/home.nix` — import list updated.
+- Runtime: all three hosts require switch + reboot; a one-time
+  `rm -f ~/.config/hypr/hyprland.conf` clears the legacy file.
+- 8ug8ear is mid-broken from the abandoned MR !36 testing: its
+  `~/.config/hypr/` currently holds the HM-generated Lua. First switch
+  to the rewrite branch regenerates it; no manual repair needed beyond
+  the standard flow.
 
 ## Notes
 
-- MR !28 (`feat/nixpkgs-26.05`) was closed 2026-09-16; the channel pins
-  it carried are now on master as `7db7426` and the compositor module
-  it carried is the basis for this change's `modules/home/hyprland.nix`.
-- MR !32 (X230 bring-up) shipped prior fixes (GRUB bootloader,
-  `windowrule` block form, hyprpaper 0.8+ syntax, splash flag) that
-  this change inherits and extends to all three hosts.
+- MR !36 (closed) and branch `feat/declarative-compositor` (deleted)
+  carried the conversion attempt; its closing note documents the
+  emitter/parser incompatibility evidence. Salvage for the rewrite:
+  two-layer split shape, gpg rename, systemd findings, the
+  stub-removal activation hook pattern.
+- The rewrite is intentionally minimal-first. Missing-from-old-config
+  comforts (if any are noticed during soak) become follow-up commits
+  on the rewrite branch, not blockers.

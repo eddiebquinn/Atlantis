@@ -1,91 +1,92 @@
 ## Context
 
-The 26.05 channel pin (`nixos-26.05` + `home-manager release-26.05`) is
-already on master via commit `7db7426`. This change does not re-pin the
-channel — it migrates the Hyprland session config to the declarative
-form and extends the conversion to the third host (8ug8ear / X230,
-added after this spec was first written).
+The 26.05 channel pin is already on master (`7db7426`). A prior
+attempt (MR !36, branch `feat/declarative-compositor`, closed
+2026-09-17) tried to convert the legacy 8.4 KB `hyprland.conf` +
+per-host `hosts.conf` chain into HM's Lua-form module in one shot. It
+accumulated 12+ fix commits and never produced a booting session:
+home-manager 26.05's Lua emitter emits shapes Hyprland 0.55's parser
+rejects (monitor args, env tables, window_rule keys, col.* colors,
+bind dispatchers, quoting), and each fix surfaced the next mismatch.
+Hyprland's parser gives no dry-run feedback — the only signal is the
+on-screen error box after a compositor start.
 
-The declarative compositor module itself was prototyped on
-`feat/nixpkgs-26.05` (MR !28, closed 2026-09-16). The module survived
-that branch in reviewable form (224 lines, Lua-mode configType, per-host
-attrs pattern); this change inherits and extends that work.
+This change replaces conversion with a rewrite from the upstream
+`example/hyprland.lua` baseline.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Compositor config is a single source of truth: home-manager emits
-  `hyprland.lua` from Nix attrs; no hand-edited conf files
-  participate in any host session.
-- All three hosts (`blackhand`, `spider`, `8ug8ear`) get the
-  declarative conversion, including the splash-flag fold from the
-  previous MR !32 work.
-- `pathways.pathsToLink` assertion is satisfied so the home-manager
-  `useUserPackages` mode evaluates cleanly.
-- Per-host monitor / workspace topology lives in `hosts/<host>/home.nix`
-  (mirroring how it was split across `hosts.conf` files previously).
+- A declarative Hyprland session on all three hosts, built from a
+  known-good parser-compatible baseline, grown one boot-verified
+  addition at a time.
+- Single source of truth: home-manager emits `hyprland.lua`; no
+  hand-edited conf files participate in any session.
+- Two-layer split preserved: compositor enablement on the NixOS layer,
+  session config + packages on the home layer.
+- Per-host topology (monitors, workspace banks) as host attrs.
 
 **Non-Goals:**
-- Re-pinning the channel pins (already on master).
-- Waybar/wofi/fastfetch/hyprpaper → module conversion (separate change:
-  `atlantis-dendritic-layout`).
-- Hyprland rice / visual theming (separate change:
-  `atlantis-dendritic-rice`).
-- Touching MR !27 (unrelated blackhand nix-serve work).
+- Faithful reproduction of every legacy conf knob. Missing comforts
+  are follow-ups.
+- Re-pinning channels (already on master).
+- Waybar/wofi/hyprpaper module conversion (`atlantis-dendritic-layout`).
+- Visual rice (`atlantis-dendritic-rice`).
 
 ## Decisions
 
-- **Fresh MR, not rebased MR !28.** MR !28 was opened 2026-09-16
-  against an older master and had never been built. Retargeting the API
-  rejects same-value edits; closing it and opening a fresh MR is cleaner
-  than a 60-commit rebase.
-- **All three hosts in one change.** Adding 8ug8ear as a follow-up
-  after the merge would just be re-doing the import-graph surgery
-  against a half-converted state. Cleaner to extend the conversion
-  in the same change.
-- **Splash flag folds into the declarative module.** `misc.disable_splash_rendering = true`
-  is added to `modules/home/hyprland.nix`'s `settings.config.misc` block,
-  next to `force_default_wallpaper = 0`. The flag's runtime effect is
-  unchanged but now lives in Nix — eval can confirm it's emitted
-  correctly into the generated `hyprland.lua`.
-- **Per-host `monitor` and `workspace_rule` attrs over the deleted
-  `hosts.conf` chain.** The conversion loses nothing; the conf chain
-  only carried `monitor = ,preferred,auto,1.0` and per-workspace bind
-  overrides, both of which are cleanly expressible as Nix attrs.
-- **Spider first, blackhand second, 8ug8ear third.** Smaller / less
-  critical host first lets eval failures surface early without
-  breaking a daily driver. 8ug8ear last because it's the host with
-  the most divergent configuration (BIOS/MBR, GRUB not systemd-boot).
+- **Rewrite from the upstream example, not conversion.** The legacy
+  conf is five years of accretion; translating it knob-by-knob against
+  a parser with no dry-run made every change a boot-test gamble. The
+  upstream `example/hyprland.lua` is maintained by Hyprland itself and
+  is parser-compatible by construction. Strip it to minimal, grow it
+  back. The user's usage is light; the state to reproduce is small.
+- **All content via `extraConfig` raw Lua; HM typed attrs only for
+  enable/configType/package.** Proven by MR !36: HM's emitter shapes
+  (single-string monitor, nested env tables, bracket-string
+  window_rule keys, `col.active_border` dot syntax, string bind
+  dispatchers, single quotes) are all parser-rejected. Raw
+  `extraConfig` mirroring the upstream example's shapes is the only
+  path that worked. Typed attrs stay minimal.
+- **One addition per boot-verified commit.** Parse errors are
+  positional (line numbers); batched additions make the failing shape
+  unattributable. Slow but diagnosable.
+- **The red-box error text is the primary diagnostic.** `hyprctl`
+  logs are silent on Lua parse errors; SSH screenshots go stale.
+  Task discipline: capture the box text before any edit.
+- **Two-layer split: slim the NixOS module, don't delete it.** The
+  display manager resolves the wayland-session file before any user
+  session exists, so compositor enablement stays on the system layer.
+  (Carried from the prior draft; unchanged.)
+- **Spider first? No — 8ug8ear first.** It is already mid-broken from
+  MR !36 testing (its `~/.config/hypr/` holds the HM-generated Lua),
+  it is the least critical host, and the SSH-access diagnostic loop is
+  already proven there. Spider and blackhand follow once the module
+  boots clean.
+- **Keep the `banks` host-attr pattern.** Workspace-bank expansion
+  via `lib.concatMapStringsSep` into `extraConfig` survived the MR
+  !36 work structurally; it moves to the rewrite unchanged in shape.
 
 ## Risks / Trade-offs
 
-- **Eval gate is the only safety net for import-graph churn.** A
-  broken `imports = [ ... ]` line fails the build loudly with a file
-  + line number, but only if we run the eval. The `nixos-rebuild
-  build` step in tasks §1.3 / 1.4 / 1.5 is mandatory before any
-  switch attempt.
-- **`dbus-broker` exit-4 on activation.** Known consequence of
-  a major-version home-manager / NixOS jump. Recovery: reboot and
-  re-run switch. Documented in the tasks so the first-time-it-happens
-  operator doesn't panic.
-- **8ug8ear-specific risk: stale `~/.config/hypr/hyprland.conf` from
-  MR !32 work.** A `.conf` in `~/.config/hypr/` shadows the
-  generated `hyprland.lua` because Hyprland prefers the `.conf` if
-  both exist. Tasks §4.2 mandates a one-time `rm -f`.
-- **Splash-flag regression risk.** If the flag does not survive the
-  declarative conversion (Nix module not emitting the key into the
-  generated Lua), the user's existing workaround (reboot to clear
-  session-cached splash texture) may still apply. Task §4.3 includes
-  a direct reboot-and-observe check on 8ug8ear.
-- **No automated test for `hyprland.lua` content.** We verify by
-  runtime behavior (waybar, binds, splash, wallpaper) — eval proves
-  Nix attributes typecheck, not that the rendered file is semantically
-  what Hyprland expects. The verification windows in tasks §2 / 3 / 4
-  are the regression net.
+- **Feature loss vs the legacy conf.** The rewrite is minimal-first;
+  anything the user misses is a follow-up commit. Tracked by the §5
+  soak, not a blocker.
+- **HM emitter may fix the shapes later.** When it does, `extraConfig`
+  content can migrate to typed attrs incrementally. Not this change.
+- **Boot-test cadence is slow.** Each addition is a switch + reboot.
+  Accepted: the alternative (batched changes) is what produced the
+  MR !36 failure mode.
+- **`dbus-broker` exit-4 on activation.** Known major-version jump
+  artefact; reboot and re-switch. Documented in tasks.
+- **Stale `.conf` shadowing.** Hyprland prefers `hyprland.conf` over
+  `hyprland.lua` when both exist; the activation hook removes HM's
+  stub and tasks mandate a one-time `rm -f`.
 
 ## Out of scope (intentional)
 
 - Waybar / wofi / fastfetch / hyprpaper module conversion — see
   `atlantis-dendritic-layout`.
 - Visual / theming rice — see `atlantis-dendritic-rice`.
-- Touching MR !27 (blackhand nix-serve, unrelated).
+- Migrating `extraConfig` content to HM typed attrs once the emitter
+  catches up.

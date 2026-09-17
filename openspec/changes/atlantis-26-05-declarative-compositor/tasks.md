@@ -1,82 +1,87 @@
 # Tasks
 
-## 1. Branch + eval gate
+## 1. Baseline module (rewrite, not conversion)
 
-- [ ] 1.1 Branch `feat/declarative-compositor` from current master
-  (NOT from the old `feat/nixpkgs-26.05` — that branch was closed in
-  favour of this fresh MR).
-- [ ] 1.2 Confirm `flake.nix` input pins on the new branch still match
-  master (`nixos-26.05`, `home-manager release-26.05`).
-- [ ] 1.3 `nixos-rebuild build --flake .#spider` — eval must succeed
-  with the `pathways.pathsToLink` assertion satisfied and the gpg/ssh
-  `matchBlocks` → `settings` migration clean.
-- [ ] 1.4 Same for `.#blackhand`.
-- [ ] 1.5 Same for `.#8ug8ear` — this is the host most likely to break
-  (the imported `modules/nixos/wm/hyprland.nix` is being deleted; the
-  `hosts.conf` chain is being deleted). If this eval fails, the
-  conversion is not safe to merge.
+- [ ] 1.1 Branch `feat/compositor-rewrite` from current master.
+- [ ] 1.2 Write `modules/home/hyprland.nix` as a **minimal skeleton**
+  first: `enable`, `configType = "lua"`, `package = null`,
+  `portalPackage = null`, `systemd.enable = true`, and an
+  `extraConfig` containing ONLY the upstream example's preamble
+  (source line, no sections, no binds). Nothing else.
+- [ ] 1.3 Add `home.packages` (waybar, hyprpaper, wofi, grim, slurp,
+  wl-clipboard) and the stub-removal activation hook.
+- [ ] 1.4 Slim `modules/nixos/wm/hyprland.nix` to compositor enable +
+  xwayland + portal pathsToLink.
+- [ ] 1.5 `nixos-rebuild build --flake .#8ug8ear` — eval must pass.
+- [ ] 1.6 Switch + reboot 8ug8ear. **Boot gate:** Hyprland starts, NO
+  red error box, `hyprctl binds` returns more than the 3 emergency
+  binds. If the red box appears, capture its text BEFORE any further
+  edit — the error text is the only reliable diagnostic.
 
-## 2. Spider window (smaller host first)
+## 2. Incremental growth (one addition per boot-verified commit)
 
-- [ ] 2.1 `sudo nixos-rebuild switch --flake .#spider`. If activation
-  exits 4 on `dbus-broker.service` user-unit reload, treat as expected:
-  reboot, then re-run switch (exit 0).
-- [ ] 2.2 Reboot into the new generation.
-- [ ] 2.3 `rm -f ~/.config/hypr/hyprland.conf` once. Confirm
-  `~/.config/hypr/hyprland.lua` is a symlink into the Nix store.
-- [ ] 2.4 Login to Hyprland: waybar + hyprpaper present, wofi spawns,
-  screenshot bind works, kb layout gb, focus binds (SUPER+h/j/k/l)
-  work. Triple-check: no `hyprland.conf` shadows the generated
-  `hyprland.lua`.
+Each step: add ONE block to `extraConfig`, eval, switch, reboot,
+verify. Never batch multiple additions — the parser errors are
+positional (line numbers) and batching hides which shape failed.
 
-## 3. Blackhand window (daily driver, second)
+- [ ] 2.1 Section config: single `hl.config({ general = {...} })` with
+  gaps only. Boot-verify.
+- [ ] 2.2 Add `decoration`, `animations` (+ per-leaf `hl.animation`
+  calls), `dwindle`, `master`, `misc` (incl. splash flag), `input`,
+  `cursor` sections to the `hl.config` block. One section per
+  boot-verify cycle.
+- [ ] 2.3 Env vars via `hl.env("KEY", "VALUE")` calls. Boot-verify.
+- [ ] 2.4 Core binds: SUPER+Return/Q/M/E/V/D/R using
+  `hl.bind(key, hl.dsp.*(...))`. Boot-verify with `hyprctl binds`.
+- [ ] 2.5 Focus binds (hjkl), workspace-scroll binds, mouse binds
+  (`hl.bindm`). Boot-verify.
+- [ ] 2.6 Screenshot bind: SUPER+S via `os.execute` wrapper (the `$()`
+  in the dispatcher string is parser-hostile; function body is not
+  introspected). Boot-verify the bind registers (execution needs a
+  session screenshot test).
+- [ ] 2.7 Window rule (suppress-maximize) via raw `hl.window_rule({})`
+  with bareword keys. Boot-verify.
+- [ ] 2.8 Autostart: `hl.on("hyprland.start", ...)` for waybar +
+  hyprpaper. Boot-verify both appear.
+- [ ] 2.9 Delete `modules/home/configs/hypr/hyprland.conf` and the
+  hosts/*.conf chain; rewire `home.file` → per-host attrs. Eval all
+  three hosts.
 
-- [ ] 3.1 `sudo nixos-rebuild switch --flake .#blackhand`; same
-  dbus-broker exit-4 expectation → reboot → re-switch.
-- [ ] 3.2 Reboot; `rm -f ~/.config/hypr/hyprland.conf`; confirm
-  `hyprland.lua` is a Nix-store symlink.
-- [ ] 3.3 Login: triple-head layout correct (DP-3 portrait left,
-  DP-2 scaled centre, DP-1 portrait right), workspace banks on the
-  right monitors, binds work.
+## 3. Host rollout
 
-## 4. 8ug8ear window (X230, third — added after the original spec)
+- [ ] 3.1 8ug8ear full window: switch, reboot, `rm -f
+  ~/.config/hypr/hyprland.conf` once, login — binds work, waybar +
+  hyprpaper autostart, splash flag honoured.
+- [ ] 3.2 spider: switch, reboot, same verification.
+- [ ] 3.3 blackhand: switch, reboot, verify triple-head (DP-3 portrait
+  left / DP-2 scaled centre / DP-1 portrait right) + workspace banks
+  via the `banks` attr expansion.
 
-- [ ] 4.1 `sudo nixos-rebuild switch --flake .#8ug8ear`; same
-  dbus-broker caveat → reboot → re-switch.
-- [ ] 4.2 Reboot; `rm -f ~/.config/hypr/hyprland.conf`; confirm
-  `hyprland.lua` is a Nix-store symlink.
-- [ ] 4.3 Login: X230 internal display, single monitor, default
-  layout from the `monitor = { output = ""; mode = "preferred"; ...}`
-  attr in `hosts/8ug8ear/home.nix`. Verify the splash flag is honoured
-  on a fresh compositor boot (`misc:disable_splash_rendering = true`
-  is now declarative, so eval verification is direct).
-- [ ] 4.4 Confirm hostname reads `8ug8ear` after switch (the GRUB /
-  hostname fix from MR !32 must still be in effect).
+## 4. Repository + MR hygiene
 
-## 5. Repository + MR hygiene
-
-- [ ] 5.1 Open a fresh MR from `feat/declarative-compositor` → master
-  with a description that documents: (a) the real diff vs current
-  master, (b) the channel-bump-is-already-on-master callout, (c) the
-  8ug8ear extension. Reference MR !32 (the X230 work) for context
-  but not MR !28 (which is closed).
-- [ ] 5.2 Note in the description that spider is verified first,
-  blackhand follows, 8ug8ear third (the same order as the verification
-  windows above).
-- [ ] 5.3 Merge the MR once all three hosts pass their verification
-  windows.
-- [ ] 5.4 Archive this change (`openspec archive
+- [ ] 4.1 Open MR from `feat/compositor-rewrite` → master. Description
+  documents: rewrite-not-conversion rationale, the MR !36 evidence,
+  the boot-verified commit discipline.
+- [ ] 4.2 Merge after all three hosts pass §3.
+- [ ] 4.3 Archive this change (`openspec archive
   atlantis-26-05-declarative-compositor`).
 
-## 6. Post-merge stability soak
+## 5. Post-merge soak
 
-- [ ] 6.1 All three hosts stable for a working session with no
-  compositor regressions (gaps, blur, cursor size, tearing behaviour,
-  splash flag behaviour) before the next change starts.
+- [ ] 5.1 All three hosts stable for a working session; any missing
+  comfort from the old config becomes a follow-up commit, not a
+  blocker.
 
-## 7. Coupling note (informational)
+## 6. Lessons folded into this change (informational)
 
-- The checklist item "Update to 26.05" and the checklist item
-  "Convert hyprland config over to nixdriven" are coupled into this
-  single openspec change because Hyprland's Lua config format requires
-  Hyprland 0.55+, which is what nixos-26.05 ships. One MR covers both.
+- HM 26.05 Lua emitter shapes are parser-incompatible with Hyprland
+  0.55 for: monitor single-string args, env tables, window_rule
+  bracket keys, col.* dot syntax, bind string dispatchers, single
+  quotes. All config content therefore lives in `extraConfig` as raw
+  Lua mirroring the upstream example — HM typed attrs carry only
+  enable/configType/package.
+- The red-box error text is the only reliable diagnostic (hyprctl
+  logs are silent on parse errors; screenshots over SSH go stale).
+  Capture it before editing.
+- One addition per boot-verified commit; positional parse errors make
+  batched changes undiagnosable.
