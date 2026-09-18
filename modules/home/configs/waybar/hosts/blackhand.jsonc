@@ -4,6 +4,7 @@
     "position": "top",
     "height": 30,
     "spacing": 4,
+    "style": "~/.config/waybar/style.css",
 
     // Choose the order of the modules
     "modules-left": [
