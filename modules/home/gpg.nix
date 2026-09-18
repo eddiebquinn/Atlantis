@@ -25,7 +25,14 @@
     enable = true;
     enableDefaultConfig = false;
 
-    matchBlocks."all" = {
+    # HM 26.05 deprecates `programs.ssh.matchBlocks` in favour of
+    # `programs.ssh.settings.<host>` attrs. The HM `programs.ssh`
+    # module exposes a top-level `settings.all` bucket for options
+    # that apply to every host — which is exactly what this attribute
+    # set was trying to express (host = "*"). See
+    # openspec/changes/atlantis-26-05-declarative-compositor proposal
+    # "Fold programs.ssh.matchBlocks → programs.ssh.settings.all".
+    settings.all = {
       host = "*";
       identityAgent = "/run/user/1000/gnupg/S.gpg-agent.ssh";
     };

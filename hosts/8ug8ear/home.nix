@@ -1,9 +1,7 @@
 { ... }:
 
 {
-  home.file.".config/hypr/hosts.conf".source =
-    ../../modules/home/configs/hypr/hosts/8ug8ear.conf;
-
+  # Per-host hosts.conf wiring removed in §2.9b.
   home.file.".config/waybar/config.jsonc".source =
     ../../modules/home/configs/waybar/hosts/8ug8ear.jsonc;
 
