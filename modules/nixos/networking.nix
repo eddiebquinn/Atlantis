@@ -1,5 +1,5 @@
-{ config, lib, pkgs, ... }:
-
 {
-  networking.networkmanager.enable = true;
+  flake.modules.nixos.workstation = {
+    networking.networkmanager.enable = true;
+  };
 }
