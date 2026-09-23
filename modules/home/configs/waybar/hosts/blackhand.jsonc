@@ -29,6 +29,7 @@
         "all-outputs": false,
         "warp-on-scroll": false,
         "format": "{name}",
+        "on-click": "hyprctl dispatch workspace name:{name}",
         "persistent-workspaces": {
             "DP-3": [1,2,3,4,5,6,7,8,9],
             "DP-2": [11,12,13,14,15,16,17,18,19],
