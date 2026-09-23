@@ -1,124 +1,126 @@
-{ config, pkgs, ... }:
-
 {
-  home.packages = with pkgs; [
-    fastfetch
-    picocom
-  ];
+  flake.modules.homeManager.eddie =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [
+        fastfetch
+        picocom
+      ];
 
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
+      programs.zsh = {
+        enable = true;
+        enableCompletion = true;
 
-    history = {
-      size = 10000;
-      save = 10000;
-    };
+        history = {
+          size = 10000;
+          save = 10000;
+        };
 
-    shellAliases = {
-      g = "git";
-      hrm = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
-      hermes = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
-      ll = "ls -lah";
-    };
+        shellAliases = {
+          g = "git";
+          hrm = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
+          hermes = ''ssh -t eddie@appstack-1.arasaka.bm.clstr.local.eddiequinn.casa "cd /etc/komodo/repos/ai-stack && sudo docker compose exec hermes hermes"'';
+          ll = "ls -lah";
+        };
 
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
+        autosuggestion.enable = true;
+        syntaxHighlighting.enable = true;
 
-    initContent = ''
-      export PATH="$HOME/.local/bin:$PATH"
-      if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
-        ${pkgs.fastfetch}/bin/fastfetch && echo " "
-      fi
-
-      gen-deploy-key() {
-        local name=$1
-        if [[ -z $name ]]; then
-          echo 'Usage: gen-deploy-key <name>'
-          echo 'Generates ~/.ssh/<name>_deploy_key with comment <name> deploy key'
-          return 1
-        fi
-        local keypath="$HOME/.ssh/''${name}_deploy_key"
-        ssh-keygen -t ed25519 -f "$keypath" -C "''${name} deploy key" -N ""
-        echo "#### PRIVATE KEY ####"
-        cat "$keypath"
-        echo ""
-        echo "#### PUBLIC KEY ####"
-        cat "''${keypath}.pub"
-      }
-
-      rebuild() {
-        local prev_dir="$PWD"
-        local host="$(hostname -s)"
-        local target_branch=""
-
-        case "''${1:-}" in
-          --switch|-s)
-            target_branch="''${2:-master}"
-            ;;
-          "")
-            ;;
-          *)
-            echo "Usage: rebuild [--switch|-s [branch-name]]"
-            return 1
-            ;;
-        esac
-
-        {
-          cd /home/eddie/.local/share/atlantis || return 1
-
-          if [[ -n "$target_branch" ]]; then
-            echo "→ Switching Atlantis repo to branch: $target_branch"
-            git fetch origin "$target_branch" || return 1
-            git switch "$target_branch" 2>/dev/null || git switch -c "$target_branch" --track "origin/$target_branch" || return 1
+        initContent = ''
+          export PATH="$HOME/.local/bin:$PATH"
+          if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]]; then
+            ${pkgs.fastfetch}/bin/fastfetch && echo " "
           fi
 
-          echo "→ Updating Atlantis repo…"
-          git pull --rebase --autostash || return 1
+          gen-deploy-key() {
+            local name=$1
+            if [[ -z $name ]]; then
+              echo 'Usage: gen-deploy-key <name>'
+              echo 'Generates ~/.ssh/<name>_deploy_key with comment <name> deploy key'
+              return 1
+            fi
+            local keypath="$HOME/.ssh/''${name}_deploy_key"
+            ssh-keygen -t ed25519 -f "$keypath" -C "''${name} deploy key" -N ""
+            echo "#### PRIVATE KEY ####"
+            cat "$keypath"
+            echo ""
+            echo "#### PUBLIC KEY ####"
+            cat "''${keypath}.pub"
+          }
 
-          echo "→ Rebuilding for host: $host"
-          sudo nixos-rebuild switch --flake ".#$host"
-        } always {
-          cd "$prev_dir" || true
-        }
-      }
+          rebuild() {
+            local prev_dir="$PWD"
+            local host="$(hostname -s)"
+            local target_branch=""
 
-    '';
-  };
+            case "''${1:-}" in
+              --switch|-s)
+                target_branch="''${2:-master}"
+                ;;
+              "")
+                ;;
+              *)
+                echo "Usage: rebuild [--switch|-s [branch-name]]"
+                return 1
+                ;;
+            esac
 
-  programs.starship = {
-    enable = true;
-    enableZshIntegration = true;
-    settings = {
-      add_newline = false;
+            {
+              cd /home/eddie/.local/share/atlantis || return 1
 
-      format = "$username@$hostname:$directory$git_branch$character";
+              if [[ -n "$target_branch" ]]; then
+                echo "→ Switching Atlantis repo to branch: $target_branch"
+                git fetch origin "$target_branch" || return 1
+                git switch "$target_branch" 2>/dev/null || git switch -c "$target_branch" --track "origin/$target_branch" || return 1
+              fi
 
-      username = {
-        show_always = true;
-        format = "\\[$user";
+              echo "→ Updating Atlantis repo…"
+              git pull --rebase --autostash || return 1
+
+              echo "→ Rebuilding for host: $host"
+              sudo nixos-rebuild switch --flake ".#$host"
+            } always {
+              cd "$prev_dir" || true
+            }
+          }
+
+        '';
       };
 
-      hostname = {
-        ssh_only = false;
-        format = "$hostname\\]";
-      };
+      programs.starship = {
+        enable = true;
+        enableZshIntegration = true;
+        settings = {
+          add_newline = false;
 
-      directory = {
-        truncation_length = 0;
-        truncate_to_repo = false;
-        format = "$path";
-      };
+          format = "$username@$hostname:$directory$git_branch$character";
 
-      git_branch = {
-        format = " \\($branch\\)";
-        style = "white";
-      };
+          username = {
+            show_always = true;
+            format = "\\[$user";
+          };
 
-      character = {
-        success_symbol = " \\$";
-        error_symbol   = " \\$";
+          hostname = {
+            ssh_only = false;
+            format = "$hostname\\]";
+          };
+
+          directory = {
+            truncation_length = 0;
+            truncate_to_repo = false;
+            format = "$path";
+          };
+
+          git_branch = {
+            format = " \\($branch\\)";
+            style = "white";
+          };
+
+          character = {
+            success_symbol = " \\$";
+            error_symbol = " \\$";
+          };
+        };
       };
     };
-  };
 }

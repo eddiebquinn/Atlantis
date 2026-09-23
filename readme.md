@@ -28,10 +28,34 @@ If it cannot be rebuilt from Git + Nix, it does not belong.
 Atlantis is built on:
 - **NixOS** — system configuration, services, hardware policy
 - **Home-Manager** — user environment and workflow configuration
+- **flake-parts + import-tree** — the [dendritic pattern](https://github.com/mightyiam/dendritic):
+  every `.nix` file under `modules/` is a flake-parts module, imported
+  automatically. There are no hand-maintained `imports = [ ... ]` lists of
+  repo-local paths — the directory tree *is* the import graph.
 - **Git** — canonical system state and audit trail
 - **GPG / SSH** — explicit identity and trust boundaries
 
 System and user concerns are strictly separated.
+
+## Repository layout
+
+```
+modules/
+  flake/     # systems, host assembly, home-manager glue
+  hosts/     # one file per machine + its hardware and assets
+  nixos/     # NixOS-layer features
+  home/      # home-manager-layer features
+  hyprland.nix   # a feature that spans both layers, in one file
+```
+
+Modules contribute to named aggregates rather than being imported by path:
+
+- `flake.modules.nixos.workstation` — everything all three hosts share
+- `flake.modules.nixos.{audio,nvidia,kube,gaming}` — opt-in, per host
+- `flake.modules.homeManager.eddie` — the user environment
+
+A host file imports the aggregates it wants and declares only what is true
+of that machine. Adding a feature means adding a file; nothing else changes.
 
 ## What This Demonstrates
 - Infrastructure as Code (flake-based Nix)
