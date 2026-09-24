@@ -1,40 +1,40 @@
-From: Higor Prado <higorevop@gmail.com> (original author)
-Backport-of: https://github.com/Alexays/Waybar/pull/5013
-Subject: [PATCH] fix(hyprland/workspaces): adapt dispatch commands for Lua IPC protocol
+Backport-of: https://github.com/Alexays/Waybar/pull/5013 (commit e17c0d9f0)
+fix(hyprland/workspaces): adapt dispatch commands for Lua IPC protocol
 
 Hyprland 0.54 replaced the text-based dispatch socket protocol with a
-Lua-based one. Commands like "dispatch workspace 1" are now interpreted
-as invalid Lua (return hl.dispatch(workspace 1)), breaking workspace
-clicks in Waybar's hyprland/workspaces module on Hyprland >= 0.54.
+Lua-based one. Waybar 0.15.0's Workspace::handleClicked sends legacy
+bare-arg strings ("dispatch workspace N") to the IPC socket, which
+Hyprland >= 0.54 parses as invalid Lua and rejects silently — clicking
+a workspace button does nothing while keyboard binds keep working
+(binds go through the Lua config, not the socket).
 
-This patch backports the upstream fix from PR #5013 (commit e17c0d9f0)
-to Waybar 0.15.0:
+This backport of upstream PR #5013 adds IPC::dispatch() which probes
+the running Hyprland once and routes through the Lua hl.dsp API when
+detected, falling back to legacy text otherwise, and points
+Workspace::handleClicked at it for workspace /
+focusworkspaceoncurrentmonitor / togglespecialworkspace.
 
-* Adds IPC::dispatch() that probes the running Hyprland on first call
-  and routes commands through the new hl.dsp Lua API when the Lua
-  protocol is detected, falling back to the old text format otherwise.
-* Adds IPC::buildLuaDispatch() to map old-style dispatchers to the new
-  Lua hl.dsp API.
-* Updates Workspace::handleClicked in workspace.cpp to use IPC::dispatch
-  for all four dispatchers (workspace, focusworkspaceoncurrentmonitor,
-  togglespecialworkspace with and without arg).
+The upstream PR also patches Workspaces::handleScroll; that method
+does not exist in 0.15.0, so it is skipped here.
 
-The upstream patch also updates Workspaces::handleScroll for scroll-
-workspace-switch; that code path does not exist in 0.15.0 (the
-all-outputs / scroll-up / scroll-down workspace switching was added
-on master after 0.15.0) so this backport skips it.
-
-Drop this patch once waybar 0.15.x is bumped to a release that includes
-the upstream fix (likely 0.15.1 or later, or whatever ships first).
+Drop this patch once waybar ships a release containing PR #5013.
 
 diff --git a/include/modules/hyprland/backend.hpp b/include/modules/hyprland/backend.hpp
-index 2e0ef65..60ef088 100644
+index 2e0ef65..9dbaedc 100644
 --- a/include/modules/hyprland/backend.hpp
 +++ b/include/modules/hyprland/backend.hpp
-@@ -19,6 +19,19 @@ class EventHandler {
+@@ -3,6 +3,7 @@
+ #include <filesystem>
+ #include <list>
+ #include <mutex>
++#include <optional>
+ #include <string>
+ #include <thread>
+ #include <utility>
+@@ -34,6 +35,19 @@ class IPC {
+   Json::Value getSocket1JsonReply(const std::string& rq);
+   static std::filesystem::path getSocketFolder(const char* instanceSig);
  
- /// If you want to use the Hyprland IPC, simply use IPC::inst() to get the singleton instance.
- /// Do not create multiple instances.
 +  /// Dispatch a Hyprland command. Automatically uses the correct protocol
 +  /// (legacy text or Lua-based) depending on the running Hyprland version.
 +  static std::string dispatch(const std::string& dispatcher, const std::string& arg);
@@ -48,11 +48,11 @@ index 2e0ef65..60ef088 100644
 +
 +  static std::optional<bool> s_luaProtocolDetected_;  // cached detection result
 +
- class IPC {
   protected:
-   IPC();  // use IPC::inst() instead.
+   static std::filesystem::path socketFolder_;
+ 
 diff --git a/src/modules/hyprland/backend.cpp b/src/modules/hyprland/backend.cpp
-index 7060d30..aa88dab 100644
+index 7060d30..aa6ceb9 100644
 --- a/src/modules/hyprland/backend.cpp
 +++ b/src/modules/hyprland/backend.cpp
 @@ -10,11 +10,13 @@
@@ -69,7 +69,7 @@ index 7060d30..aa88dab 100644
  
  std::filesystem::path IPC::getSocketFolder(const char* instanceSig) {
    static std::mutex folderMutex;
-@@ -243,4 +245,56 @@ Json::Value IPC::getSocket1JsonReply(const std::string& rq) {
+@@ -243,4 +245,62 @@ Json::Value IPC::getSocket1JsonReply(const std::string& rq) {
    return parser_.parse(reply);
  }
  
@@ -97,6 +97,11 @@ index 7060d30..aa88dab 100644
 +
 +std::string IPC::buildLuaDispatch(const std::string& dispatcher, const std::string& arg) {
 +  // Map old-style dispatchers to the new Lua hl.dsp API.
++  //  old: dispatch workspace N          new: /dispatch hl.dsp.focus({ workspace = "N" })
++  //  old: dispatch focusworkspaceoncurrentmonitor N
++  //                                     new: /dispatch hl.dsp.focus({ workspace = "N", monitor = "current" })
++  //  old: dispatch togglespecialworkspace [name]
++  //                                     new: /dispatch hl.dsp.workspace.toggle_special() | ("name")
 +  if (dispatcher == "workspace") {
 +    return "/dispatch hl.dsp.focus({ workspace = \"" + arg + "\" })";
 +  }
@@ -111,6 +116,7 @@ index 7060d30..aa88dab 100644
 +  }
 +
 +  // Fallback for any other dispatcher: try the old format wrapped in dispatch().
++  // This may not work for all dispatchers, but it's a reasonable default.
 +  spdlog::warn("Hyprland IPC: unknown dispatcher '{}' in Lua mode; falling back to legacy format", dispatcher);
 +  return "/dispatch " + dispatcher + (arg.empty() ? std::string() : (" " + arg));
 +}

@@ -23,8 +23,6 @@
 [
   (final: prev: {
     waybar = prev.waybar.overrideAttrs (old: {
-      version = "0.15.0-pr5013";
-      __intentionallyOverridingVersion = true;
       patches = (old.patches or []) ++ [
         ../patches/waybar-pr5013-lua-dispatch.patch
       ];
