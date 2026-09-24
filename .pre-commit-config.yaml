@@ -1,0 +1,45 @@
+# Atlantis pre-commit hooks.
+#
+# Install locally with:
+#   nix-shell -p pre-commit --run 'pre-commit install'
+# Run manually against the whole tree:
+#   nix-shell -p pre-commit --run 'pre-commit run --all-files'
+#
+# CI-side enforcement: see the `pre-commit` job in .gitlab-ci.yml.
+#
+# Pinning policy: revs are pinned to 40-char SHAs. Bumping is its own MR.
+repos:
+  # Local hook: alejandra via nix-shell.
+  # The upstream kamadorueda/alejandra hook declares `language: rust`,
+  # which makes pre-commit try to bootstrap a Rust toolchain (rustup) on
+  # every fresh runner — fragile in CI, slow on warm runners. Since the
+  # CI image (nixos/nix) provides nix-shell and alejandra is in nixpkgs,
+  # we sidestep the rustup bootstrap by calling alejandra through a
+  # local hook that uses nix-shell directly.
+  #
+  # Shape: pre-commit invokes the entry as <entry> <file1> <file2> ...,
+  # so `sh -c '... "$@"' --` makes "$@" the list of files and sh
+  # iterates `alejandra "$f"` for each. nix-shell's --run takes the
+  # whole command string verbatim.
+  - repo: local
+    hooks:
+      - id: alejandra
+        name: alejandra (nix-shell)
+        description: Format Nix language files using alejandra from nixpkgs.
+        entry: sh -c 'exec nix-shell -p alejandra --run "for f in \"\$@\"; do alejandra \"\$f\" || exit \$?; done" --'
+        language: system
+        files: '\.nix$'
+        types: [file]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # v5.0.0
+    hooks:
+      - id: check-yaml
+        # Catches malformed YAML in .gitlab-ci.yml, renovate.json, etc.
+      - id: check-merge-conflict
+        # Catches leftover <<<<<<< markers from botched rebases.
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        # Don't accidentally commit the nixpkgs closure or a stray binary.
+        args: ['--maxkb=1024']
