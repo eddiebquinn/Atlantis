@@ -20,6 +20,69 @@ include:
     ref: master
     file: /templates/security.yml
 
+# Atlantis-specific gitleaks overrides.
+#
+# The meditek template's .gitleaks_template writes its own .gitleaks.toml in
+# before_script (cat > .gitleaks.toml <<'EOF'), which clobbers anything we
+# might ship at the repo root. v8.30.1 also doesn't honour .gitleaksignore
+# for filepath:line allowlists the way the docs suggest.
+#
+# Workaround: define our own gitleaks jobs here that re-write the config
+# with an [extend] block adding an allowlist for the public GPG signing-key
+# fingerprint in modules/home/git.nix (which is a public identifier, not a
+# credential — but gitleaks's default generic-api-key rule matches it
+# anyway). trivy_config and hadolint keep using the meditek template
+# unchanged.
+.atlantis_gitleaks_template:
+  stage: scan
+  tags:
+    - check
+  image:
+    name: ghcr.io/gitleaks/gitleaks:v8.30.1
+    entrypoint: [""]
+  variables:
+    GIT_STRATEGY: clone
+  before_script:
+    - |
+      cat > .gitleaks.toml <<'EOF'
+      title = "Atlantis gitleaks config (extends meditek defaults)"
+
+      [extend]
+      useDefault = true
+
+      [allowlist]
+      description = "Public GPG signing-key fingerprint in modules/home/git.nix (line 7). It's a public identifier used to verify signed commits, not a credential — but gitleaks's default generic-api-key rule matches it on entropy alone (3.78 > 3.5)."
+      paths = [
+        '''modules/home/git\.nix''',
+      ]
+      regexes = [
+        '''key = "[A-F0-9]{40}"''',
+      ]
+      EOF
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - gitleaks-*.json
+
+gitleaks_current:
+  extends: .atlantis_gitleaks_template
+  script:
+    - gitleaks dir . --config .gitleaks.toml --report-format json --report-path gitleaks-current.json --redact
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+
+gitleaks_history:
+  extends: .atlantis_gitleaks_template
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - gitleaks git . --config .gitleaks.toml --report-format json --report-path gitleaks-history.json --redact
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+
 stages:
   - scan
   - validate
