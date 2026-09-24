@@ -1,12 +1,13 @@
 # Atlantis gitleaks allowlist.
 #
-# gitleaks reads this file from the repo root regardless of the
-# --config file's [extend] settings. Format: one fingerprint per line,
-# obtained from a gitleaks run report (the `Fingerprint` field).
+# Format: <file>:<line>  OR  <file>:<RuleID>:<hash>
 #
-# This entry allowlists the public GPG signing-key fingerprint stored in
-# modules/home/git.nix line 7. It's not a credential — it's a public
-# identifier used to verify signed commits — but gitleaks's default
-# `generic-api-key` rule pattern is broad enough to match the 40-char
-# hex string anyway.
-modules/home/git.nix:generic-api-key:*
+# gitleaks reads this file from the repo root automatically; the meditek
+# template's before_script clobbers any local .gitleaks.toml but does not
+# touch this file.
+#
+# modules/home/git.nix:7 — public GPG signing-key fingerprint declared in
+# the git signing config. It's a public identifier, not a credential, but
+# gitleaks's default `generic-api-key` rule matches any 40-char uppercase
+# hex string with entropy > 3.5 (the fingerprint scores 3.78).
+modules/home/git.nix:7
