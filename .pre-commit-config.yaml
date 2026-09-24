@@ -16,12 +16,17 @@ repos:
   # CI image (nixos/nix) provides nix-shell and alejandra is in nixpkgs,
   # we sidestep the rustup bootstrap by calling alejandra through a
   # local hook that uses nix-shell directly.
+  #
+  # Shape: pre-commit invokes the entry as <entry> <file1> <file2> ...,
+  # so `sh -c '... "$@"' --` makes "$@" the list of files and sh
+  # iterates `alejandra "$f"` for each. nix-shell's --run takes the
+  # whole command string verbatim.
   - repo: local
     hooks:
       - id: alejandra
         name: alejandra (nix-shell)
         description: Format Nix language files using alejandra from nixpkgs.
-        entry: nix-shell -p alejandra --run 'alejandra "$@"'
+        entry: sh -c 'exec nix-shell -p alejandra --run "for f in \"\$@\"; do alejandra \"\$f\" || exit \$?; done" --'
         language: system
         files: '\.nix$'
         types: [file]
