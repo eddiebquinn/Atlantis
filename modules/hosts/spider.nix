@@ -21,10 +21,6 @@
         "6C456670D420AA1C989355232D469E70938B45F0"
       ];
 
-      # Negative-test fixture for ci-verification
-      # Per-host eval must catch this even if flake-check passes.
-      services.thisOptionDoesNotExist.enable = true;
-
       # Single display: no monitor declarations, no workspace-to-monitor
       # routing, flat SUPER+1..9 workspaces.
       atlantis.hyprland.workspaceBinds = [
