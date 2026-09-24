@@ -2,7 +2,10 @@
 
 {
   flake.modules.nixos."8ug8ear" = {
-    imports = [ config.flake.modules.nixos.workstation ];
+    imports = [
+      config.flake.modules.nixos.workstation
+      config.flake.modules.nixos.pangolin-cli
+    ];
 
     networking.hostName = "8ug8ear";
 
