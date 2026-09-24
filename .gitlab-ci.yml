@@ -156,6 +156,9 @@ eval:blackhand:
 
 # Pre-commit (CI-side enforcement). Runs the same hooks as local dev, so
 # hook-less contributors are still gated on formatting and hygiene drift.
+# The alejandra hook uses nix-shell -p alejandra (the kamadorueda/alejandra
+# upstream hook would bootstrap a Rust toolchain, which is fragile in CI —
+# see .pre-commit-config.yaml for the rationale).
 pre-commit:
   stage: test
   tags:
@@ -166,5 +169,6 @@ pre-commit:
   before_script:
     - nix --version
     - nix-shell -p pre-commit --run 'pre-commit --version'
+    - nix-shell -p alejandra --run 'alejandra --version'
   script:
     - nix-shell -p pre-commit --run 'pre-commit run --all-files --show-diff-on-failure'

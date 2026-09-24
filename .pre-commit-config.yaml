@@ -7,14 +7,24 @@
 #
 # CI-side enforcement: see the `pre-commit` job in .gitlab-ci.yml.
 #
-# Pinning policy: revs are pinned to short SHAs. Bumping is its own MR.
+# Pinning policy: revs are pinned to 40-char SHAs. Bumping is its own MR.
 repos:
-  - repo: https://github.com/kamadorueda/alejandra
-    rev: 3e2a85506627062313e131bf8a85315f3387c8e0  # alejandra 4.0.0
+  # Local hook: alejandra via nix-shell.
+  # The upstream kamadorueda/alejandra hook declares `language: rust`,
+  # which makes pre-commit try to bootstrap a Rust toolchain (rustup) on
+  # every fresh runner — fragile in CI, slow on warm runners. Since the
+  # CI image (nixos/nix) provides nix-shell and alejandra is in nixpkgs,
+  # we sidestep the rustup bootstrap by calling alejandra through a
+  # local hook that uses nix-shell directly.
+  - repo: local
     hooks:
       - id: alejandra
-        # Formatter for Nix language files. The nix-standard formatter.
-        # Runs on every *.nix in the repo.
+        name: alejandra (nix-shell)
+        description: Format Nix language files using alejandra from nixpkgs.
+        entry: nix-shell -p alejandra --run 'alejandra "$@"'
+        language: system
+        files: '\.nix$'
+        types: [file]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # v5.0.0
