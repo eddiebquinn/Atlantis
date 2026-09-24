@@ -1,0 +1,24 @@
+{
+    // waybar module fragment — owned by the Pangolin ZTNA feature.
+    //
+    // Hosts reference this via top-level "includes":
+    //   "includes": [ "~/.config/waybar/includes/pangolin.jsonc" ]
+    //
+    // Polling helper: ~/.local/bin/pangolin-waybar-status
+    //   Prints one JSON object per call:
+    //     { text, tooltip, class }
+    //   class is "connected" or "disconnected".
+    //   Hosts style via CSS:
+    //     #custom-pangolin.connected       { color: ...; }  /* green */
+    //     #custom-pangolin.disconnected   { color: ...; }  /* red/dim */
+
+    "custom/pangolin": {
+        "exec": "~/.local/bin/pangolin-waybar-status",
+        "interval": 10,
+        "return-type": "json",
+        "format": "{text}",
+        "exec-if": "command -v pangolin || ip -br addr show pangolin",
+        "tooltip": true,
+        "on-click": "pangolin status"
+    }
+}
