@@ -55,7 +55,7 @@ migration, not just a move.
 - **waybar jsonc comments are converted, not preserved.** `programs.waybar`
   settings are typed Nix attrs; the jsonc comments in the current files
   don't survive. Acceptable loss — the attrset is self-describing.
-- **Rename + dead-code removal ride along.** `devlopment.nix` → 
+- **Rename + dead-code removal ride along.** `devlopment.nix` →
   `development.nix` and qtile deletion are tree hygiene in the same logical
   change as the re-homing; splitting them out is MR ceremony without
   review value.
