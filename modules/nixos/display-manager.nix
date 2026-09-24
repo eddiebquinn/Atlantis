@@ -1,5 +1,5 @@
-{ config, lib, pkgs, ... }:
-
 {
-  services.displayManager.ly.enable = true;
+  flake.modules.nixos.workstation = {
+    services.displayManager.ly.enable = true;
+  };
 }

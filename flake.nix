@@ -4,6 +4,16 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
+    # Dendritic pattern substrate.
+    #
+    # flake-parts gives flake outputs a module system; import-tree
+    # auto-imports every .nix file under ./modules as a flake-parts
+    # module. Between them, no file in this repo carries an
+    # `imports = [ ... ]` list of repo-local paths — the directory
+    # tree IS the import graph. Adding a feature means adding a file.
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,57 +26,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, firefox-addons, ... }@inputs:
-  let
-    defaultSystem = "x86_64-linux";
-
-    # Per-system overlays. Currently patches waybar 0.15.0 to fix
-    # Hyprland 0.55.2 IPC dispatch — see overlays/default.nix for
-    # the rationale and patches/waybar-pr5013-lua-dispatch.patch for
-    # the backport itself.
-    mkOverlays = _system: import ./overlays;
-
-    mkHost =
-      { hostName
-      , system ? defaultSystem
-      }:
-      nixpkgs.lib.nixosSystem {
-        inherit system;
-
-        specialArgs = { inherit inputs hostName; };
-
-        modules = [
-          ./hosts/${hostName}/configuration.nix
-
-          home-manager.nixosModules.home-manager
-
-          ({ ... }: {
-            nixpkgs.overlays = mkOverlays system;
-
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              backupFileExtension = "backup";
-
-              # For Home-Manager modules
-              extraSpecialArgs = { inherit inputs hostName; };
-
-              users.eddie = { ... }: {
-                imports = [
-                  ./home/eddie/home.nix
-                  ./hosts/${hostName}/home.nix
-                ];
-              };
-            };
-          })
-        ];
-      };
-  in
-  {
-    nixosConfigurations = {
-      "8ug8ear" = mkHost { hostName = "8ug8ear"; };
-      spider = mkHost { hostName = "spider"; };
-      blackhand = mkHost { hostName = "blackhand"; };
-    };
-  };
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }
