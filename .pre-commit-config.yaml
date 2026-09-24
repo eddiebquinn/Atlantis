@@ -10,14 +10,14 @@
 # Pinning policy: revs are pinned to short SHAs. Bumping is its own MR.
 repos:
   - repo: https://github.com/kamadorueda/alejandra
-    rev: 77fa2e6c80c0f57facc6ec814d6a3da2fc6a51ad  # alejandra 4.1.0
+    rev: 3e2a85506627062313e131bf8a85315f3387c8e0  # alejandra 4.0.0
     hooks:
       - id: alejandra
         # Formatter for Nix language files. The nix-standard formatter.
         # Runs on every *.nix in the repo.
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: cef0300fd0fc34886e1ba54b1e9dd18ee8d62673  # v5.0.0
     hooks:
       - id: check-yaml
         # Catches malformed YAML in .gitlab-ci.yml, renovate.json, etc.
