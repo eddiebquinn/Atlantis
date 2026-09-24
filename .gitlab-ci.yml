@@ -50,6 +50,17 @@ include:
       [extend]
       useDefault = true
 
+      # Preserved from meditek's bundled heuristic rule — keep its semantic
+      # (opaque secrets in suspicious-looking filenames) since we're
+      # shadowing the meditek gitleaks jobs and would otherwise lose it.
+      [[rules]]
+      id = "opaque-secret-in-suspicious-file"
+      description = "Opaque secret stored in a file whose name suggests token/api/key material"
+      path = '''(?i)(^|/)[^/]*(api|token|key)[^/]*$'''
+      regex = '''(?m)^(?P<secret>[A-Za-z0-9_-]{24,})$'''
+      secretGroup = 1
+      entropy = 3.5
+
       [allowlist]
       description = "Public GPG signing-key fingerprint in modules/home/git.nix (line 7). It's a public identifier used to verify signed commits, not a credential — but gitleaks's default generic-api-key rule matches it on entropy alone (3.78 > 3.5)."
       paths = [
@@ -142,3 +153,18 @@ eval:blackhand:
   extends: .nix-base
   script:
     - nix eval --raw .#nixosConfigurations.blackhand.config.system.build.toplevel.drvPath
+
+# Pre-commit (CI-side enforcement). Runs the same hooks as local dev, so
+# hook-less contributors are still gated on formatting and hygiene drift.
+pre-commit:
+  stage: test
+  tags:
+    - check
+  image: nixos/nix:2.35.2
+  variables:
+    GIT_DEPTH: "1"
+  before_script:
+    - nix --version
+    - nix-shell -p pre-commit --run 'pre-commit --version'
+  script:
+    - nix-shell -p pre-commit --run 'pre-commit run --all-files --show-diff-on-failure'

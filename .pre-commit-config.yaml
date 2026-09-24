@@ -1,0 +1,30 @@
+# Atlantis pre-commit hooks.
+#
+# Install locally with:
+#   nix-shell -p pre-commit --run 'pre-commit install'
+# Run manually against the whole tree:
+#   nix-shell -p pre-commit --run 'pre-commit run --all-files'
+#
+# CI-side enforcement: see the `pre-commit` job in .gitlab-ci.yml.
+#
+# Pinning policy: revs are pinned to short SHAs. Bumping is its own MR.
+repos:
+  - repo: https://github.com/kamadorueda/alejandra
+    rev: 77fa2e6c80c0f57facc6ec814d6a3da2fc6a51ad  # alejandra 4.1.0
+    hooks:
+      - id: alejandra
+        # Formatter for Nix language files. The nix-standard formatter.
+        # Runs on every *.nix in the repo.
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        # Catches malformed YAML in .gitlab-ci.yml, renovate.json, etc.
+      - id: check-merge-conflict
+        # Catches leftover <<<<<<< markers from botched rebases.
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        # Don't accidentally commit the nixpkgs closure or a stray binary.
+        args: ['--maxkb=1024']
