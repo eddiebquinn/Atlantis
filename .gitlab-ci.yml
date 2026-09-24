@@ -1,0 +1,81 @@
+# Atlantis CI pipeline.
+#
+# First CI config this repo has had. Three layers:
+#
+#   scan     — meditek security.yml included verbatim (gitleaks current+history,
+#              trivy config, hadolint). Hadolint and trivy config exit cleanly when
+#              no Dockerfiles/compose files are present, so they're no-ops for us.
+#   validate — reserved for the validate template (not included; pre-commit + a
+#              CI-side pre-commit job in the test stage cover formatting/hygiene).
+#   test     — nix flake check (repo-wide) + nix eval per host (8ug8ear, spider,
+#              blackhand). Per-host eval is the gate that catches module-wiring
+#              breaks flake-check alone misses.
+#
+# Source of truth for the host list is modules/flake/hosts.nix — adding a host
+# to the flake requires adding its eval job in the same MR (spec: ci-verification
+# Requirement: Per-Host Nix Eval Gate).
+
+include:
+  - project: foundry/meditek
+    ref: master
+    file: /templates/security.yml
+
+stages:
+  - scan
+  - validate
+  - test
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: never
+
+variables:
+  GIT_STRATEGY: clone
+
+# ── Test stage ────────────────────────────────────────────────────────────
+# Nix image pinned to a tag present on the LAN registry mirror
+# (10.67.40.25:5000 has nixos/nix through 2.35.2). Bumping the tag is a
+# Renovate/MR-bump, not a silent drift.
+.nix-base:
+  stage: test
+  tags:
+    - check
+  image: nixos/nix:2.35.2
+  variables:
+    GIT_DEPTH: "1"
+  before_script:
+    - |
+      cat > /etc/nix/nix.conf <<'EOF'
+      experimental-features = nix-command flakes
+      EOF
+    - nix --version
+
+# Repo-wide flake check. Catches structural errors (flake.modules aggregation,
+# import-tree missing files, type errors in typed options, missing inputs).
+flake-check:
+  extends: .nix-base
+  script:
+    - nix flake check --no-build --show-trace
+
+# Per-host eval. Forces each host's full system derivation to evaluate —
+# this is what catches host-module wiring breaks (option renames, missing
+# imports, host-specific type errors) that `flake check` does NOT force.
+# Job names track the host list in modules/flake/hosts.nix.
+eval:8ug8ear:
+  extends: .nix-base
+  script:
+    - nix eval --raw .#nixosConfigurations.8ug8ear.config.system.build.toplevel.drvPath
+
+eval:spider:
+  extends: .nix-base
+  script:
+    - nix eval --raw .#nixosConfigurations.spider.config.system.build.toplevel.drvPath
+
+eval:blackhand:
+  extends: .nix-base
+  script:
+    - nix eval --raw .#nixosConfigurations.blackhand.config.system.build.toplevel.drvPath
