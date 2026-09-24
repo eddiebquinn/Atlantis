@@ -31,7 +31,6 @@
         "all-outputs": true,
         "warp-on-scroll": false,
         "format": "{name}",
-        "on-click": "hyprctl dispatch \"hl.dsp.focus({ workspace = \\\"name:{name}\\\" })\"",
         "persistent-workspaces": {
             "*" : 9
         }

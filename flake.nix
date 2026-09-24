@@ -20,6 +20,12 @@
   let
     defaultSystem = "x86_64-linux";
 
+    # Per-system overlays. Currently patches waybar 0.15.0 to fix
+    # Hyprland 0.55.2 IPC dispatch — see overlays/default.nix for
+    # the rationale and patches/waybar-pr5013-lua-dispatch.patch for
+    # the backport itself.
+    mkOverlays = _system: import ./overlays;
+
     mkHost =
       { hostName
       , system ? defaultSystem
@@ -35,6 +41,8 @@
           home-manager.nixosModules.home-manager
 
           ({ ... }: {
+            nixpkgs.overlays = mkOverlays system;
+
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
