@@ -12,7 +12,7 @@
 #   3. Fallback: not connected.
 #
 # Output (one JSON object per line, valid for waybar's `return-type: "json"`):
-#   {"text": "● pangolin", "tooltip": "...", "class": "connected"}
+#   {"text": "∋", "tooltip": "...", "class": "connected"}
 #
 # The `class` field drives CSS in ~/.config/waybar/style.css:
 #   #custom-pangolin.connected       { color: ...; }  /* green  */
@@ -27,18 +27,18 @@ emit() {
 
 # 1. Interface up? Cheapest signal — no fork, no jq.
 if ip -br addr show pangolin 2>/dev/null | grep -q .; then
-  emit connected 'Pangolin tunnel interface is up' '● pangolin'
+  emit connected 'Pangolin tunnel interface is up' '∋'
   exit 0
 fi
 
 # 2. CLI status (only runs if `pangolin` and `jq` exist).
 if command -v pangolin >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
   if pangolin status --json | jq -e '.connected and .registered' >/dev/null 2>&1; then
-    emit connected 'Pangolin connected' '● pangolin'
+    emit connected 'Pangolin connected' '∋'
     exit 0
   fi
 fi
 
 # 3. Fallback.
-emit disconnected 'Pangolin not connected' '● pangolin'
+emit disconnected 'Pangolin not connected' '∋'
 exit 0
