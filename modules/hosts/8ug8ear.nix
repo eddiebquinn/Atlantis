@@ -5,6 +5,7 @@
     imports = [
       config.flake.modules.nixos.workstation
       config.flake.modules.nixos.pangolin-cli
+      config.flake.modules.nixos.internet-waybar
     ];
 
     networking.hostName = "8ug8ear";

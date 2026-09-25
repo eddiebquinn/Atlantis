@@ -10,6 +10,7 @@
         config.flake.modules.nixos.nvidia
         config.flake.modules.nixos.kube
         config.flake.modules.nixos.gaming
+        config.flake.modules.nixos.internet-waybar
       ];
 
       networking.hostName = "blackhand";

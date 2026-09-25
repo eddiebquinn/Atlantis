@@ -18,7 +18,7 @@
 
     "modules-right": [
         "custom/sep",
-        "network",
+        "custom/internet",
         "custom/sep",
         "clock",
     ],
@@ -74,12 +74,15 @@
         "format-time": "{H}:{M}",
         "format-icons": ["", "", "", "", ""]
     },
-    "network": {
-        "format": "Online",
-        "format-disconnected": "Disconnected ⚠"
-    },
     "custom/sep": {
         "format" : "|",
         "interval" : 0
+    },
+    "custom/internet": {
+        "exec": "/run/current-system/sw/bin/internet-waybar-status",
+        "interval": 10,
+        "return-type": "json",
+        "format": "{text}",
+        "tooltip": true
     }
 }
