@@ -2,7 +2,7 @@
 
 {
   flake.modules.nixos.spider = {
-    imports = [ config.flake.modules.nixos.workstation ];
+    imports = [ config.flake.modules.nixos.workstation config.flake.modules.nixos.internet-waybar ];
 
     # keep spider-specific stuff here for now
     networking.hostName = "spider";

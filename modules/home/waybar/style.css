@@ -84,3 +84,19 @@ button:hover {
     color: rgba(255, 255, 255, 0.55);  /* dim: tunnel down */
     border-bottom: 2px solid transparent;
 }
+
+/* Internet / LAN reachability (modules/nixos/internet-waybar.nix).
+   `λ` (U+03BB) is the identity glyph; state is conveyed entirely by
+   colour and the bottom-border, mirroring the pangolin convention. */
+#custom-internet.internet {
+    color: #6cc04a;            /* green: fully connected */
+    border-bottom: 2px solid #6cc04a;
+}
+#custom-internet.lan {
+    color: #e0a92e;            /* yellow: LAN only, no internet */
+    border-bottom: 2px solid #e0a92e;
+}
+#custom-internet.offline {
+    color: rgba(255, 255, 255, 0.55);  /* dim: no link */
+    border-bottom: 2px solid transparent;
+}
