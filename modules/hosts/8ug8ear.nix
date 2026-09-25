@@ -10,6 +10,18 @@
 
     networking.hostName = "8ug8ear";
 
+    # Laptop lid policy (issue #3): closing the lid suspends. The lock
+    # screen is handled by the session (hypridle locks before sleep —
+    # see modules/lock.nix), so resume lands on the lock screen rather
+    # than a black display. logind owns sleep policy; it never locks.
+    # 26.05 option names: the old lidSwitch* aliases are renamed to
+    # settings.Login.HandleLidSwitch*.
+    services.logind.settings.Login = {
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "suspend";
+      HandleLidSwitchDocked = "ignore";
+    };
+
     # 8ug8ear is a ThinkPad X230 — legacy BIOS / MBR disk (/dev/sda1 is the
     # only partition; no ESP, no bios_grub). systemd-boot needs an ESP and
     # fails install with "efiSysMountPoint = '/boot' is not a mounted partition".
