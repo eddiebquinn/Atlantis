@@ -34,31 +34,25 @@
   flake.modules.homeManager.eddie =
     { config, lib, pkgs, ... }:
     let
-      # Lock UI style. "tui" (default) is a minimal terminal-style
-      # screen — pure black, monospace prompt line at the bottom,
-      # no wallpaper / clock / date. "themed" is the fuller lock
-      # screen with wallpaper + clock + date, used when the user
-      # wants the lock screen to feel like the session itself.
-      lockConf =
-        if config.atlantis.lock.style == "themed" then
-          ./hyprland/hyprlock-themed.conf
-        else
-          ./hyprland/hyprlock-tui.conf;
+      # Lock UI config file. The current layout is Layout 17 from
+      # mahaveergurjar/Hyprlock-Dots (centred authenticate box with
+      # the hostname title). Future variants can branch on
+      # `atlantis.lock.style` and select a sibling conf.
+      lockConf = ./hyprland/hyprlock-themed.conf;
     in
     {
       options.atlantis.lock = {
+        # Reserved for future lock-screen variants (per-host themes,
+        # alternative layouts from Hyprlock-Dots, etc.). Currently
+        # only one style ships; the option exists so a future variant
+        # can be added without another rename pass.
         style = lib.mkOption {
-          type = lib.types.enum [ "tui" "themed" ];
+          type = lib.types.enum [ "themed" ];
           default = "themed";
           description = ''
-            Lock screen appearance. "themed" (default) renders the
-            session wallpaper (dimmed), a large clock, the date, and
-            a centred password input. "tui" is a minimal
-            terminal-style screen (pure black, monospace prompt at
-            the bottom, no wallpaper / clock / date) — kept as an
-            option but not the default while the conf shape is being
-            iterated on; live testing showed the tui variant renders
-            an empty input field.
+            Lock screen appearance. Currently only "themed" ships —
+            a centred authenticate box with the hostname title,
+            adapted from Layout 17 of mahaveergurjar/Hyprlock-Dots.
           '';
         };
       };

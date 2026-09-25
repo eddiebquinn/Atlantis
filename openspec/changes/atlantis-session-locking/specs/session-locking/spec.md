@@ -73,27 +73,33 @@ SHALL stay in `modules/hyprland.nix`.
 - **THEN** focus moves right
 - **AND** SUPER+h / SUPER+j / SUPER+k are unchanged
 
-### Requirement: Lock Screen Appearance Is Selectable
+### Requirement: Lock Screen Appearance
 
-The lock screen SHALL render one of two styles, picked by
-`atlantis.lock.style` (a string option, enum `"tui" | "themed"`,
-default `"themed"`). The "themed" style SHALL render the session
-wallpaper (dimmed), a large clock, the date, and a centred password
-input. The "tui" style SHALL be a minimal terminal-style screen: pure
-black background, a single monospace prompt line anchored to the
-bottom-left with the form `<hostname>: password:`. Both styles SHALL
-reside in sibling conf files under `modules/hyprland/` and be wired
-via `xdg.configFile."hypr/hyprlock.conf".source` so the lock UI is
-rebuildable without a shell hack.
+The session SHALL render a centred authenticate box as the lock
+screen — adapted from Layout 17 of
+[mahaveergurjar/Hyprlock-Dots](https://github.com/mahaveergurjar/Hyprlock-Dots),
+with the host's hostname in the title bar and the user's login name
+on the username label. The layout SHALL live in
+`modules/hyprland/hyprlock-themed.conf` and be wired via
+`xdg.configFile."hypr/hyprlock.conf".source` so the lock UI is
+rebuildable without a shell hack. `atlantis.lock.style` SHALL remain
+a reserved option (currently enum `["themed"]`) so future variants
+can be added without another rename pass.
 
-#### Scenario: Default is the themed style
-- **WHEN** the user profile is activated with no `atlantis.lock.style`
-  override
+#### Scenario: Lock screen renders the hostname in the title
+- **WHEN** the session locks on 8ug8ear
+- **THEN** the centred authenticate box shows "Authenticate into
+  8ug8ear" in the title bar
+- **AND** the username label shows "Username: eddie"
+
+#### Scenario: Lock screen renders on every host
+- **WHEN** the user profile is activated on any host
 - **THEN** `~/.config/hypr/hyprlock.conf` is a symlink to the themed
-  conf — wallpaper background, clock, date, centred password input
+  conf in the Nix store
 
-#### Scenario: Setting style to "tui" picks the tui conf
-- **WHEN** `atlantis.lock.style = "tui"`
-- **THEN** `~/.config/hypr/hyprlock.conf` is a symlink to the tui
-  conf — pure black, no wallpaper, monospace prompt line at the
-  bottom
+#### Scenario: Lock screen mirrors the ly display manager aesthetic
+- **WHEN** the user transitions from ly (pre-login) into the locked
+  session
+- **THEN** the visual continuity between ly and the lock screen
+  feels coherent (centred box, monochrome palette, no decorative
+  chrome)
