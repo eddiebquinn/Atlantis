@@ -20,6 +20,8 @@
         "custom/sep",
         "network",
         "custom/sep",
+        "custom/pangolin",
+        "custom/sep",
         "battery",
         "custom/sep",
         "clock",
@@ -81,5 +83,13 @@
     "custom/sep": {
         "format" : "|",
         "interval" : 0
+    },
+    "custom/pangolin": {
+        "exec": "/run/current-system/sw/bin/pangolin-waybar-status",
+        "interval": 10,
+        "return-type": "json",
+        "format": "{text}",
+        "tooltip": true,
+        "on-click": "pangolin status"
     }
 }

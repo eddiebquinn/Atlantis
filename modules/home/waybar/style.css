@@ -74,3 +74,13 @@ button:hover {
 #network.disconnected {
     background-color: rgba(255, 255, 255, 0.15);
 }
+
+/* Pangolin ZTNA client (modules/nixos/pangolin.nix) */
+#custom-pangolin.connected {
+    color: #6cc04a;            /* green: tunnel up */
+    border-bottom: 2px solid #6cc04a;
+}
+#custom-pangolin.disconnected {
+    color: rgba(255, 255, 255, 0.55);  /* dim: tunnel down */
+    border-bottom: 2px solid transparent;
+}
