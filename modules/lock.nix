@@ -16,6 +16,13 @@
   # Lock stack ships to every host (software repo-wide feature): manual
   # SUPER+l locking and idle locking are useful everywhere. Suspend
   # behaviour is only meaningful on the laptop.
+  #
+  # Module shape: HM modules MUST use `options = { ... }; config = {
+  # ... };` siblings when both are present. Mixing options and free
+  # config attrs (i.e. config without the `config = ` wrapper) makes
+  # Nix misread the body as a top-level config and emit "unsupported
+  # attribute `services`" with a misleading trace. See
+  # nixos-config-management SKILL §3.3 in the change's tasks.md.
 
   flake.modules.nixos.workstation = {
     # Installs hyprlock system-wide and, critically, registers the

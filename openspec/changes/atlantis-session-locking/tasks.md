@@ -34,6 +34,22 @@
   (naming this module file in the error). Reverted; final ladder run
   green. CI runs the identical flake-check + eval:<host> commands on
   the MR pipeline.
+- [x] 3.2 Negative test for the new `atlantis.lock.style` enum (this
+  commit): setting `atlantis.lock.style = "neon"` on 8ug8ear
+  produces `A definition for option
+  'home-manager.users.eddie.atlantis.lock.style' is not of type
+  'one of "tui", "themed"'`, naming the host file in the error.
+  Reverted; final eval ladder green. Runtime probes:
+  `xdg.configFile."hypr/hyprlock.conf".source` resolves to
+  `hyprlock-tui.conf` by default and to `hyprlock-themed.conf` when
+  `style = "themed"` is set — both confirmed via `nix eval --json`.
+- [x] 3.3 During this commit's eval cycle, the wrong module shape
+  (`options` block + free config siblings, no `config = { ... }`
+  wrap) silently coerced into "unsupported attribute `services`"
+  with a misleading trace — fixed by wrapping the existing
+  `services.hypridle` + `xdg.configFile.*` blocks in
+  `config = { ... }`, matching the pattern in `modules/hyprland.nix`.
+  Lesson recorded in nixos-config-management skill.
 
 ## 4. MR
 
