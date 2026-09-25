@@ -205,6 +205,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     local menu          = "wofi --show drun"
     local reload_waybar = "pkill waybar; waybar &"
     local snip          = "grim -g $(slurp) - | wl-copy"
+    local lock          = "pidof hyprlock || hyprlock"
 
     -- §2.3 — environment variables.
     hl.env("GTK_THEME", "Tokyo-Night-Dark")
@@ -335,9 +336,11 @@ ${workspaceRuleLua}
         suppress_event = "maximize",
     })
 
-    -- §2.5 — focus / scroll / mouse binds.
+    -- §2.5 — focus / scroll / mouse binds. Lock takes SUPER+l (issue
+    -- #3); vim focus-right moves to SUPER+CTRL+l.
     hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left"  }))
-    hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
+    hl.bind(mainMod .. " + l", hl.dsp.exec_cmd(lock))
+    hl.bind(mainMod .. " + CTRL + l", hl.dsp.focus({ direction = "right" }))
     hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up"    }))
     hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down"  }))
 
