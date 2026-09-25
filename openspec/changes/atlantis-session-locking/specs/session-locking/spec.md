@@ -72,3 +72,34 @@ SHALL stay in `modules/hyprland.nix`.
 - **WHEN** SUPER+CTRL+l is pressed
 - **THEN** focus moves right
 - **AND** SUPER+h / SUPER+j / SUPER+k are unchanged
+
+### Requirement: Lock Screen Appearance Is Selectable
+
+The lock screen SHALL render one of two styles, picked by
+`atlantis.lock.style` (a string option, enum `"tui" | "themed"`,
+default `"tui"`). The "tui" style SHALL be a minimal terminal-style
+screen: pure black background, a single monospace prompt line anchored
+to the bottom-left with the form `<hostname>: password:`. The
+"themed" style SHALL render the session wallpaper (dimmed), a large
+clock, the date, and a centred password input. Both styles SHALL
+reside in sibling conf files under `modules/hyprland/` and be wired
+via `xdg.configFile."hypr/hyprlock.conf".source` so the lock UI is
+rebuildable without a shell hack.
+
+#### Scenario: Default is the tui style
+- **WHEN** the user profile is activated with no `atlantis.lock.style`
+  override
+- **THEN** `~/.config/hypr/hyprlock.conf` is a symlink to the tui
+  conf — pure black, no wallpaper, monospace prompt line at the
+  bottom
+
+#### Scenario: Setting style to "themed" picks the themed conf
+- **WHEN** `atlantis.lock.style = "themed"`
+- **THEN** `~/.config/hypr/hyprlock.conf` is a symlink to the themed
+  conf — wallpaper background, clock, date, centred password input
+
+#### Scenario: Lock screen mirrors the ly display manager by default
+- **WHEN** the user transitions from ly (pre-login) into the locked
+  session
+- **THEN** the visual continuity between ly and the lock screen
+  feels coherent (no wallpaper / no clock / no decorative chrome)

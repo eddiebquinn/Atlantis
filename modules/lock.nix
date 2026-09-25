@@ -26,99 +26,76 @@
 
   flake.modules.homeManager.eddie =
     { config, lib, pkgs, ... }:
+    let
+      # Lock UI style. "tui" (default) is a minimal terminal-style
+      # screen — pure black, monospace prompt line at the bottom,
+      # no wallpaper / clock / date. "themed" is the fuller lock
+      # screen with wallpaper + clock + date, used when the user
+      # wants the lock screen to feel like the session itself.
+      lockConf =
+        if config.atlantis.lock.style == "themed" then
+          ./hyprland/hyprlock-themed.conf
+        else
+          ./hyprland/hyprlock-tui.conf;
+    in
     {
-      # Idle → lock, and lock-on-suspend. HM generates the systemd
-      # user service (WantedBy graphical-session.target, active on
-      # every host because wayland.windowManager.hyprland.systemd
-      # is enabled in modules/hyprland.nix).
-      services.hypridle = {
-        enable = true;
-
-        settings = {
-          general = {
-            lock_cmd = "pidof hyprlock || hyprlock";
-            # Lock BEFORE suspend so resume lands on the lock screen,
-            # not a black screen (the original issue #3 symptom).
-            before_sleep_cmd = "pidof hyprlock || hyprlock";
-            # Re-light displays after resume in case DPMS-off was in
-            # effect when the machine slept.
-            after_sleep_cmd = "hyprctl dispatch dpms on";
-            ignore_dbus_inhibit = false;
-          };
-
-          listener = [
-            {
-              # 10 min idle → lock (issue #3 target).
-              timeout = 600;
-              on-timeout = "pidof hyprlock || hyprlock";
-            }
-            {
-              # 10.5 min idle → displays off. Lock UI stays up; any
-              # input wakes the display straight into the lock screen.
-              timeout = 630;
-              on-timeout = "hyprctl dispatch dpms off";
-              on-resume = "hyprctl dispatch dpms on";
-            }
-          ];
+      options.atlantis.lock = {
+        style = lib.mkOption {
+          type = lib.types.enum [ "tui" "themed" ];
+          default = "tui";
+          description = ''
+            Lock screen appearance. "tui" is a minimal terminal-style
+            screen (pure black, monospace prompt at the bottom,
+            no wallpaper / clock / date) — mirrors ly. "themed"
+            renders the session wallpaper, clock, and date.
+          '';
         };
       };
 
-      # hyprlock UI. Config written directly (same pattern as
-      # hyprpaper.conf in modules/hyprland.nix) because the package
-      # and PAM wiring come from the NixOS layer above — using HM's
-      # programs.hyprlock would duplicate the package in the user
-      # profile.
-      xdg.configFile."hypr/hyprlock.conf".text = ''
-        # Session lock screen. Tokyo-Night palette to match the session.
+      config = {
+        # Idle → lock, and lock-on-suspend. HM generates the systemd
+        # user service (WantedBy graphical-session.target, active on
+        # every host because wayland.windowManager.hyprland.systemd
+        # is enabled in modules/hyprland.nix).
+        services.hypridle = {
+          enable = true;
 
-        background {
-            monitor =
-            path = ${./hyprland/wallpapers/black-triangle.png}
-            color = rgba(26, 27, 38, 1.0)
-            blur_passes = 2
-            blur_size = 4
-            brightness = 0.55
-        }
+          settings = {
+            general = {
+              lock_cmd = "pidof hyprlock || hyprlock";
+              # Lock BEFORE suspend so resume lands on the lock screen,
+              # not a black screen (the original issue #3 symptom).
+              before_sleep_cmd = "pidof hyprlock || hyprlock";
+              # Re-light displays after resume in case DPMS-off was in
+              # effect when the machine slept.
+              after_sleep_cmd = "hyprctl dispatch dpms on";
+              ignore_dbus_inhibit = false;
+            };
 
-        # Clock.
-        label {
-            monitor =
-            text = cmd[update:60000:] date +'%H:%M'
-            color = rgba(187, 154, 247, 0.95)
-            font_size = 90
-            position = 0, 160
-            halign = center
-            valign = center
-        }
+            listener = [
+              {
+                # 10 min idle → lock (issue #3 target).
+                timeout = 600;
+                on-timeout = "pidof hyprlock || hyprlock";
+              }
+              {
+                # 10.5 min idle → displays off. Lock UI stays up; any
+                # input wakes the display straight into the lock screen.
+                timeout = 630;
+                on-timeout = "hyprctl dispatch dpms off";
+                on-resume = "hyprctl dispatch dpms on";
+              }
+            ];
+          };
+        };
 
-        # Date.
-        label {
-            monitor =
-            text = cmd[update:3600000:] date +'%A, %d %B %Y'
-            color = rgba(169, 177, 214, 0.85)
-            font_size = 24
-            position = 0, 60
-            halign = center
-            valign = center
-        }
-
-        # Password entry.
-        input-field {
-            monitor =
-            size = 240, 48
-            outline_thickness = 2
-            dots_size = 0.25
-            dots_spacing = 0.3
-            dots_center = true
-            outer_color = rgba(187, 154, 247, 0.6)
-            inner_color = rgba(26, 27, 38, 0.8)
-            font_color = rgba(169, 177, 214, 1.0)
-            fade_on_empty = false
-            placeholder_text =
-            position = 0, -80
-            halign = center
-            valign = center
-        }
-      '';
+        # hyprlock UI. Config written as a sibling conf file via
+        # xdg.configFile.source — same pattern as hyprpaper.conf in
+        # modules/hyprland.nix. The chosen file is `lockConf`, picked
+        # by `atlantis.lock.style`. Using HM's programs.hyprlock would
+        # duplicate the package in the user profile; the package and
+        # PAM wiring come from the NixOS layer above.
+        xdg.configFile."hypr/hyprlock.conf".source = lockConf;
+      };
     };
 }
