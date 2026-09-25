@@ -49,12 +49,16 @@
       options.atlantis.lock = {
         style = lib.mkOption {
           type = lib.types.enum [ "tui" "themed" ];
-          default = "tui";
+          default = "themed";
           description = ''
-            Lock screen appearance. "tui" is a minimal terminal-style
-            screen (pure black, monospace prompt at the bottom,
-            no wallpaper / clock / date) — mirrors ly. "themed"
-            renders the session wallpaper, clock, and date.
+            Lock screen appearance. "themed" (default) renders the
+            session wallpaper (dimmed), a large clock, the date, and
+            a centred password input. "tui" is a minimal
+            terminal-style screen (pure black, monospace prompt at
+            the bottom, no wallpaper / clock / date) — kept as an
+            option but not the default while the conf shape is being
+            iterated on; live testing showed the tui variant renders
+            an empty input field.
           '';
         };
       };
