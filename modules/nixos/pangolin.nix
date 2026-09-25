@@ -39,26 +39,15 @@
       ];
     };
 
-  # Home Manager: waybar include fragment.
-  #
-  # The exec value is the absolute path Nix exposes in the system
-  # profile for writeShellScriptBin outputs. Stable Nix profile
-  # symlink across rebuilds; g_spawn sees a literal path — no `~`
-  # expansion, no PATH lookup.
+  # Home Manager: nothing to declare here anymore. The waybar module
+  # config lives inline in each host's waybar.jsonc (this repo's
+  # documented architecture — every module from custom/sep to network
+  # is declared inline; an earlier revision tried waybar's `includes`
+  # mechanism for a shared fragment but it never rendered, and was
+  # removed). The exec target is the system package installed by the
+  # NixOS aggregate above.
   flake.modules.homeManager.eddie =
     { ... }:
     {
-      xdg.configFile."waybar/includes/pangolin.jsonc".text = ''
-        {
-            "custom/pangolin": {
-                "exec": "/run/current-system/sw/bin/pangolin-waybar-status",
-                "interval": 10,
-                "return-type": "json",
-                "format": "{text}",
-                "tooltip": true,
-                "on-click": "pangolin status"
-            }
-        }
-      '';
     };
 }

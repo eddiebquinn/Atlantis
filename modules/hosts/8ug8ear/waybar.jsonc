@@ -6,14 +6,6 @@
     "spacing": 4,
     "style": "~/.config/waybar/style.css",
 
-    // Modules-includes — file-fragments owned by NixOS feature modules.
-    // The pangolin fragment ships from flake.modules.nixos.pangolin-cli
-    // (see modules/nixos/pangolin.nix + pangolin-waybar.jsonc) and adds
-    // the `custom/pangolin` waybar module wired to its polling helper.
-    "includes": [
-        "~/.config/waybar/includes/pangolin.jsonc"
-    ],
-
     // Choose the order of the modules
     "modules-left": [
         "hyprland/workspaces",
@@ -91,5 +83,13 @@
     "custom/sep": {
         "format" : "|",
         "interval" : 0
+    },
+    "custom/pangolin": {
+        "exec": "/run/current-system/sw/bin/pangolin-waybar-status",
+        "interval": 10,
+        "return-type": "json",
+        "format": "{text}",
+        "tooltip": true,
+        "on-click": "pangolin status"
     }
 }
