@@ -37,11 +37,12 @@
 
 ## 4. MR
 
-- [ ] 4.1 Branch `feat/session-locking`, MR to master, title
+- [x] 4.1 Branch `feat/session-locking`, MR !48 to master, title
   `feat(lock): session locking — hyprlock + hypridle + lid suspend (8ug8ear)`.
   Description: rationale (issue #3), bind-conflict resolution note,
-  pipeline table, negative-test outcome. One MR = artifacts +
-  implementation + negative test.
+  verification evidence, negative-test outcome. Pipeline #3187: all
+  9 jobs green (pre-commit, flake-check, eval:8ug8ear, eval:spider,
+  eval:blackhand, gitleaks ×2, trivy, hadolint).
 - [ ] 4.2 After merge: update this change's tasks to [x], then
   `openspec archive atlantis-session-locking` — only after user
   confirms live-on-hosts.
