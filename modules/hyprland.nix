@@ -147,9 +147,8 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
           pkgs.waybar
           pkgs.hyprpaper
           pkgs.wofi
-          pkgs.grim
-          pkgs.slurp
           pkgs.wl-clipboard
+          pkgs.satty
         ];
 
         # hyprpaper has no home-manager program module, so this feature
@@ -204,7 +203,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     local fileManager   = "dolphin"
     local menu          = "wofi --show drun"
     local reload_waybar = "pkill waybar; waybar &"
-    local snip          = "grim -g $(slurp) - | wl-copy &"
+    local snip          = "satty -f -"
     local lock          = "pidof hyprlock || hyprlock"
 
     -- §2.3 — environment variables.
