@@ -147,6 +147,8 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
           pkgs.waybar
           pkgs.hyprpaper
           pkgs.wofi
+          pkgs.grim
+          pkgs.slurp
           pkgs.wl-clipboard
           pkgs.satty
         ];
@@ -203,7 +205,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     local fileManager   = "dolphin"
     local menu          = "wofi --show drun"
     local reload_waybar = "pkill waybar; waybar &"
-    local snip          = "satty -f -"
+    local snip          = "grim -g \"$(slurp)\" - | satty -f -"
     local lock          = "pidof hyprlock || hyprlock"
 
     -- §2.3 — environment variables.
