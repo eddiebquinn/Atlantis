@@ -266,9 +266,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
     hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))
     hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(reload_waybar))
-    hl.bind(mainMod .. " + S", function ()
-        os.execute(snip)
-    end)
+    hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(snip))
 
     -- §2.4b — per-host workspace switches.
 ${workspaceBindLua}
