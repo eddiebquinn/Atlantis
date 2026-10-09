@@ -204,7 +204,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     local fileManager   = "dolphin"
     local menu          = "wofi --show drun"
     local reload_waybar = "pkill waybar; waybar &"
-    local snip          = "grim -g $(slurp) - | wl-copy"
+    local snip          = "grim -g $(slurp) - | wl-copy &"
     local lock          = "pidof hyprlock || hyprlock"
 
     -- §2.3 — environment variables.
