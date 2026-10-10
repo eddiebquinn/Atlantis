@@ -210,7 +210,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
 
     -- §2.3 — environment variables.
     hl.env("GTK_THEME", "Tokyo-Night-Dark")
-    hl.env("GTK_ICON_THEME", "Adwaita")
+    hl.env("GTK_ICON_THEME", "Adwaita-dark")
     hl.env("XCURSOR_SIZE", "24")
     hl.env("HYPRCURSOR_SIZE", "24")
     hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
