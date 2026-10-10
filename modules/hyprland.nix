@@ -328,6 +328,14 @@ ${workspaceRuleLua}
         },
     })
 
+    -- §2.7a — windowrule: satty opens floating.
+    -- Class confirmed live via `hyprctl clients -j` on blackhand.
+    local satty_float = hl.window_rule({
+        name    = "satty-float",
+        match   = { class = "com.gabm.satty" },
+        floating = true,
+    })
+
     -- §2.7 — windowrule: suppress-maximize.
     local suppress_maximize = hl.window_rule({
         name  = "suppress-maximize-all",
