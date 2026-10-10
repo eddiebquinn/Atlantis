@@ -330,10 +330,13 @@ ${workspaceRuleLua}
 
     -- §2.7a — windowrule: satty opens floating.
     -- Class confirmed live via `hyprctl clients -j` on blackhand.
+    -- Field is `float`, NOT `floating` — verified against upstream
+    -- hyprwm/Hyprland src/config/lua/bindings/LuaBindingsInternal.hpp
+    -- (WINDOW_RULE_EFFECT_DESCS at line 50).
     local satty_float = hl.window_rule({
-        name    = "satty-float",
-        match   = { class = "com.gabm.satty" },
-        floating = true,
+        name  = "satty-float",
+        match = { class = "com.gabm.satty" },
+        float = true,
     })
 
     -- §2.7 — windowrule: suppress-maximize.
