@@ -150,6 +150,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
           pkgs.grim
           pkgs.slurp
           pkgs.wl-clipboard
+          pkgs.satty
         ];
 
         # hyprpaper has no home-manager program module, so this feature
@@ -204,12 +205,12 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     local fileManager   = "dolphin"
     local menu          = "wofi --show drun"
     local reload_waybar = "pkill waybar; waybar &"
-    local snip          = "grim -g $(slurp) - | wl-copy &"
+    local snip          = "grim -g \"$(slurp)\" - | satty -f -"
     local lock          = "pidof hyprlock || hyprlock"
 
     -- §2.3 — environment variables.
     hl.env("GTK_THEME", "Tokyo-Night-Dark")
-    hl.env("GTK_ICON_THEME", "Adwaita")
+    hl.env("GTK_ICON_THEME", "Adwaita-dark")
     hl.env("XCURSOR_SIZE", "24")
     hl.env("HYPRCURSOR_SIZE", "24")
     hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
@@ -267,9 +268,7 @@ ${lib.optionalString (m.transform != null) ("        transform = " + toString m.
     hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
     hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))
     hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(reload_waybar))
-    hl.bind(mainMod .. " + S", function ()
-        os.execute(snip)
-    end)
+    hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(snip))
 
     -- §2.4b — per-host workspace switches.
 ${workspaceBindLua}
@@ -327,6 +326,17 @@ ${workspaceRuleLua}
                 natural_scroll = false,
             },
         },
+    })
+
+    -- §2.7a — windowrule: satty opens floating.
+    -- Class confirmed live via `hyprctl clients -j` on blackhand.
+    -- Field is `float`, NOT `floating` — verified against upstream
+    -- hyprwm/Hyprland src/config/lua/bindings/LuaBindingsInternal.hpp
+    -- (WINDOW_RULE_EFFECT_DESCS at line 50).
+    local satty_float = hl.window_rule({
+        name  = "satty-float",
+        match = { class = "com.gabm.satty" },
+        float = true,
     })
 
     -- §2.7 — windowrule: suppress-maximize.
