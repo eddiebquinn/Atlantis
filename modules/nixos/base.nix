@@ -17,6 +17,7 @@
         tree
         vscodium
         obsidian
+        orca-slicer
       ];
 
       fonts.packages = with pkgs; [
